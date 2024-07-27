@@ -12,3 +12,4 @@ add_library(mem_manager OBJECT
 
 add_executable(tbsprpg_sdl main.c main.c)
 target_link_libraries(tbsprpg_sdl mem_manager)
+add_subdirectory(google_tests)
