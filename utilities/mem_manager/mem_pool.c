@@ -4,6 +4,6 @@
 
 #include "../mem_manager.h"
 
-void mmgr_pool_init() {
-
+void mmgr_pool_init()
+{
 }

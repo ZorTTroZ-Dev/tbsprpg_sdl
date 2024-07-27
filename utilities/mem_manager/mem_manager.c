@@ -7,14 +7,15 @@
 /**
  * @brief Allocate game memory
  */
-void mmgr_alloc() {
-        // it's going ot go to the the memory pool get the next hunk of memory
-        // do bookkeeping and return a new mmgr_handle
+void mmgr_alloc()
+{
+	// it's going ot go to the the memory pool get the next hunk of memory
+	// do bookkeeping and return a new mmgr_handle
 }
 
 /**
  * @brief Free game memory
  */
-void mmgr_free() {
-
+void mmgr_free()
+{
 }

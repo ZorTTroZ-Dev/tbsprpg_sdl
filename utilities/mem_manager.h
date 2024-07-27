@@ -11,8 +11,8 @@
  * @brief Handle for allocated data from memory manager
  */
 struct mmgr_handle {
-        uint32_t handle; //!< comprised of a magic number and a memory chunk id
-        void *data; //!< pointer to allocated memory
+	uint32_t handle; //!< comprised of a magic number and a memory chunk id
+	void *data; //!< pointer to allocated memory
 };
 
 extern void mmgr_alloc();
