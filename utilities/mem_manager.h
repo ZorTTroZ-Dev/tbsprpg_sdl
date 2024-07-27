@@ -22,6 +22,6 @@ extern void mmgr_free();
 // memory pool will consist of linked list of memory chunks in use
 // and a linked list of memory chunks not in use a chunk will contain an id
 // a link to the next chunk a pointer to the actual memory
-extern void mmgr_pool_init();
+extern int mmgr_pool_init();
 
 #endif //MEM_MANAGER_H
