@@ -12,37 +12,34 @@
 #define HASHMAP_MAX_LOAD 0.75f
 #define HASHMAP_RESIZE_FACTOR 2
 
-struct bucket
-{
+struct bucket {
 	// `next` must be the first struct element.
 	// changing the order will break multiple functions
-	struct bucket* next;
+	struct bucket *next;
 
 	// key, key size, key hash, and associated value
-	const void* key;
+	const void *key;
 	size_t ksize;
 	uint32_t hash;
 	uintptr_t value;
 };
 
-struct hashmap
-{
-	struct bucket* buckets;
+struct hashmap {
+	struct bucket *buckets;
 	int capacity;
 	int count;
 	// "tombstones" are empty buckets from removing elements
 	int tombstone_count;
 	// a linked list of all valid entries, in order
-	struct bucket* first;
+	struct bucket *first;
 	// lets us know where to add the next element
-	struct bucket* last;
+	struct bucket *last;
 };
 
-hashmap* hashmap_create(void)
+hashmap *hashmap_create(void)
 {
-	hashmap* m = malloc(sizeof(hashmap));
-	if (m == NULL)
-	{
+	hashmap *m = malloc(sizeof(hashmap));
+	if (m == NULL) {
 		return NULL;
 	}
 
@@ -62,26 +59,24 @@ hashmap* hashmap_create(void)
 	// this prevents branching in hashmap_set.
 	// m->first will be treated as the "next" pointer in an imaginary bucket.
 	// when the first item is added, m->first will be set to the correct address.
-	m->last = (struct bucket*)&m->first;
+	m->last = (struct bucket *)&m->first;
 	return m;
 }
 
-void hashmap_free(hashmap* m)
+void hashmap_free(hashmap *m)
 {
 	free(m->buckets);
 	free(m);
 }
 
 // puts an old bucket into a resized hashmap
-static struct bucket* resize_entry(hashmap* m, struct bucket* old_entry)
+static struct bucket *resize_entry(hashmap *m, struct bucket *old_entry)
 {
 	uint32_t index = old_entry->hash % m->capacity;
-	for (;;)
-	{
-		struct bucket* entry = &m->buckets[index];
+	for (;;) {
+		struct bucket *entry = &m->buckets[index];
 
-		if (entry->key == NULL)
-		{
+		if (entry->key == NULL) {
 			*entry = *old_entry; // copy data from old entry
 			return entry;
 		}
@@ -90,10 +85,10 @@ static struct bucket* resize_entry(hashmap* m, struct bucket* old_entry)
 	}
 }
 
-static int hashmap_resize(hashmap* m)
+static int hashmap_resize(hashmap *m)
 {
 	int old_capacity = m->capacity;
-	struct bucket* old_buckets = m->buckets;
+	struct bucket *old_buckets = m->buckets;
 
 	m->capacity *= HASHMAP_RESIZE_FACTOR;
 	// initializes all bucket fields to null
@@ -105,18 +100,16 @@ static int hashmap_resize(hashmap* m)
 	}
 
 	// same trick; avoids branching
-	m->last = (struct bucket*)&m->first;
+	m->last = (struct bucket *)&m->first;
 
 	m->count -= m->tombstone_count;
 	m->tombstone_count = 0;
 
 	// assumes that an empty map won't be resized
-	do
-	{
+	do {
 		// skip entry if it's a "tombstone"
-		struct bucket* current = m->last->next;
-		if (current->key == NULL)
-		{
+		struct bucket *current = m->last->next;
+		if (current->key == NULL) {
 			m->last->next = current->next;
 			// skip to loop condition
 			continue;
@@ -133,23 +126,21 @@ static int hashmap_resize(hashmap* m)
 #define HASHMAP_HASH_INIT 2166136261u
 
 // FNV-1a hash function
-static inline uint32_t hash_data(const unsigned char* data, size_t size)
+static inline uint32_t hash_data(const unsigned char *data, size_t size)
 {
 	size_t nblocks = size / 8;
 	uint64_t hash = HASHMAP_HASH_INIT;
-	for (size_t i = 0; i < nblocks; ++i)
-	{
+	for (size_t i = 0; i < nblocks; ++i) {
 		hash ^= (uint64_t)data[0] << 0 | (uint64_t)data[1] << 8 |
-			 (uint64_t)data[2] << 16 | (uint64_t)data[3] << 24 |
-			 (uint64_t)data[4] << 32 | (uint64_t)data[5] << 40 |
-			 (uint64_t)data[6] << 48 | (uint64_t)data[7] << 56;
+			(uint64_t)data[2] << 16 | (uint64_t)data[3] << 24 |
+			(uint64_t)data[4] << 32 | (uint64_t)data[5] << 40 |
+			(uint64_t)data[6] << 48 | (uint64_t)data[7] << 56;
 		hash *= 0xbf58476d1ce4e5b9;
 		data += 8;
 	}
 
 	uint64_t last = size & 0xff;
-	switch (size % 8)
-	{
+	switch (size % 8) {
 	case 7:
 		last |= (uint64_t)data[6] << 56; /* fallthrough */
 	case 6:
@@ -173,23 +164,21 @@ static inline uint32_t hash_data(const unsigned char* data, size_t size)
 	return (uint32_t)(hash ^ hash >> 32);
 }
 
-static struct bucket* find_entry(hashmap* m, const void* key, size_t ksize, uint32_t hash)
+static struct bucket *find_entry(hashmap *m, const void *key, size_t ksize,
+				 uint32_t hash)
 {
 	uint32_t index = hash % m->capacity;
 
-	for (;;)
-	{
-		struct bucket* entry = &m->buckets[index];
+	for (;;) {
+		struct bucket *entry = &m->buckets[index];
 
 		// compare sizes, then hashes, then key data as a last resort.
 		// check for tombstone
 		if ((entry->key == NULL && entry->value == 0) ||
-			// check for valid matching entry
-			(entry->key != NULL &&
-			 entry->ksize == ksize &&
-			 entry->hash == hash &&
-			 memcmp(entry->key, key, ksize) == 0))
-		{
+		    // check for valid matching entry
+		    (entry->key != NULL && entry->ksize == ksize &&
+		     entry->hash == hash &&
+		     memcmp(entry->key, key, ksize) == 0)) {
 			// return the entry if a match or an empty bucket is found
 			return entry;
 		}
@@ -199,7 +188,7 @@ static struct bucket* find_entry(hashmap* m, const void* key, size_t ksize, uint
 	}
 }
 
-int hashmap_set(hashmap* m, const void* key, size_t ksize, uintptr_t val)
+int hashmap_set(hashmap *m, const void *key, size_t ksize, uintptr_t val)
 {
 	if (m->count + 1 > HASHMAP_MAX_LOAD * m->capacity) {
 		if (hashmap_resize(m) == -1)
@@ -207,9 +196,8 @@ int hashmap_set(hashmap* m, const void* key, size_t ksize, uintptr_t val)
 	}
 
 	uint32_t hash = hash_data(key, ksize);
-	struct bucket* entry = find_entry(m, key, ksize, hash);
-	if (entry->key == NULL)
-	{
+	struct bucket *entry = find_entry(m, key, ksize, hash);
+	if (entry->key == NULL) {
 		m->last->next = entry;
 		m->last = entry;
 		entry->next = NULL;
@@ -224,7 +212,8 @@ int hashmap_set(hashmap* m, const void* key, size_t ksize, uintptr_t val)
 	return 0;
 }
 
-int hashmap_get_set(hashmap* m, const void* key, size_t ksize, uintptr_t* out_in)
+int hashmap_get_set(hashmap *m, const void *key, size_t ksize,
+		    uintptr_t *out_in)
 {
 	if (m->count + 1 > HASHMAP_MAX_LOAD * m->capacity) {
 		if (hashmap_resize(m) == -1)
@@ -232,9 +221,8 @@ int hashmap_get_set(hashmap* m, const void* key, size_t ksize, uintptr_t* out_in
 	}
 
 	uint32_t hash = hash_data(key, ksize);
-	struct bucket* entry = find_entry(m, key, ksize, hash);
-	if (entry->key == NULL)
-	{
+	struct bucket *entry = find_entry(m, key, ksize, hash);
+	if (entry->key == NULL) {
 		m->last->next = entry;
 		m->last = entry;
 		entry->next = NULL;
@@ -252,7 +240,8 @@ int hashmap_get_set(hashmap* m, const void* key, size_t ksize, uintptr_t* out_in
 	return 1;
 }
 
-int hashmap_set_free(hashmap* m, const void* key, size_t ksize, uintptr_t val, hashmap_callback c, void* usr)
+int hashmap_set_free(hashmap *m, const void *key, size_t ksize, uintptr_t val,
+		     hashmap_callback c, void *usr)
 {
 	if (m->count + 1 > HASHMAP_MAX_LOAD * m->capacity) {
 		if (hashmap_resize(m) == -1)
@@ -261,8 +250,7 @@ int hashmap_set_free(hashmap* m, const void* key, size_t ksize, uintptr_t val, h
 
 	uint32_t hash = hash_data(key, ksize);
 	struct bucket *entry = find_entry(m, key, ksize, hash);
-	if (entry->key == NULL)
-	{
+	if (entry->key == NULL) {
 		m->last->next = entry;
 		m->last = entry;
 		entry->next = NULL;
@@ -287,10 +275,10 @@ int hashmap_set_free(hashmap* m, const void* key, size_t ksize, uintptr_t val, h
 	return error;
 }
 
-int hashmap_get(hashmap* m, const void* key, size_t ksize, uintptr_t* out_val)
+int hashmap_get(hashmap *m, const void *key, size_t ksize, uintptr_t *out_val)
 {
 	uint32_t hash = hash_data(key, ksize);
-	struct bucket* entry = find_entry(m, key, ksize, hash);
+	struct bucket *entry = find_entry(m, key, ksize, hash);
 
 	// if there is no match, output val will just be NULL
 	*out_val = entry->value;
@@ -300,14 +288,12 @@ int hashmap_get(hashmap* m, const void* key, size_t ksize, uintptr_t* out_val)
 
 // doesn't "remove" the element per se, but it will be ignored.
 // the element will eventually be removed when the map is resized.
-void hashmap_remove(hashmap* m, const void* key, size_t ksize)
+void hashmap_remove(hashmap *m, const void *key, size_t ksize)
 {
 	uint32_t hash = hash_data(key, ksize);
-	struct bucket* entry = find_entry(m, key, ksize, hash);
+	struct bucket *entry = find_entry(m, key, ksize, hash);
 
-	if (entry->key != NULL)
-	{
-
+	if (entry->key != NULL) {
 		// "tombstone" entry is signified by a NULL key with a nonzero value
 		// element removal is optional because of the overhead of tombstone checks
 		entry->key = NULL;
@@ -317,13 +303,13 @@ void hashmap_remove(hashmap* m, const void* key, size_t ksize)
 	}
 }
 
-void hashmap_remove_free(hashmap* m, const void* key, size_t ksize, hashmap_callback c, void* usr)
+void hashmap_remove_free(hashmap *m, const void *key, size_t ksize,
+			 hashmap_callback c, void *usr)
 {
 	uint32_t hash = hash_data(key, ksize);
-	struct bucket* entry = find_entry(m, key, ksize, hash);
+	struct bucket *entry = find_entry(m, key, ksize, hash);
 
-	if (entry->key != NULL)
-	{
+	if (entry->key != NULL) {
 		c(entry->key, entry->ksize, entry->value, usr);
 
 		// "tombstone" entry is signified by a NULL key with a nonzero value
@@ -335,23 +321,23 @@ void hashmap_remove_free(hashmap* m, const void* key, size_t ksize, hashmap_call
 	}
 }
 
-int hashmap_size(hashmap* m)
+int hashmap_size(hashmap *m)
 {
 	return m->count - m->tombstone_count;
 }
 
-int hashmap_iterate(hashmap* m, hashmap_callback c, void* user_ptr)
+int hashmap_iterate(hashmap *m, hashmap_callback c, void *user_ptr)
 {
 	// loop through the linked list of valid entries
 	// this way we can skip over empty buckets
-	struct bucket* current = m->first;
+	struct bucket *current = m->first;
 	int error = 0;
 
-	while (current != NULL)
-	{
+	while (current != NULL) {
 		// "tombstone" check
 		if (current->key != NULL)
-			error = c(current->key, current->ksize, current->value, user_ptr);
+			error = c(current->key, current->ksize, current->value,
+				  user_ptr);
 		if (error == -1)
 			break;
 
