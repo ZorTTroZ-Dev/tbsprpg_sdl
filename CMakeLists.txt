@@ -15,6 +15,8 @@ add_library(ini_config OBJECT
         utilities/ini_config.h
         utilities/ini_config/ini_config.c
         utilities/defines.h
+        utilities/hashmap.h
+        utilities/types/hashmap.c
 )
 
 add_executable(tbsprpg_sdl

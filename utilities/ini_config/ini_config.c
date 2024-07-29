@@ -5,6 +5,20 @@
 #include "../ini_config.h"
 #include "../defines.h"
 
+#include <stddef.h>
+
+struct inicfg_setting {
+	char *key;
+	char *value;
+};
+
+struct inicfg_section {
+	char *section_name;
+	struct inicfg_setting *settings;
+};
+
+static struct inicfg_section *inicfg_config = NULL;
+
 /**
  * @brief Open the default config ini file, parse the file and place it in
  *	memory for access.
@@ -13,6 +27,11 @@
  */
 int inicfg_open()
 {
+	// open the file
+	// make sure we opened the file properly
+	// parse the file in to memory
+	// return status
+	// if parsing fails need to deallocate memory
 	return FUNC_SUCCESS;
 }
 
@@ -20,6 +39,8 @@ int inicfg_open()
  * @brief Retrieve the value for the given key in the given section
  *	will point the value parameter to the key value, do not free
  *	the given value pointer.
+ * @note This implementation is naive you may not want to retreive an ini setting
+ *	during gameplay.
  * @param section name of section to find key in
  * @param key name of key to get value for
  * @param value pointer to char that will contain the requested value
@@ -34,6 +55,8 @@ int inicfg_getstring(char *section, char *key, char *value)
 * @brief Retrieve the value for the given key in the given section
  *	will point the value parameter to the key value, do not free
  *	the given value pointer.
+ * @note This implementation is naive you may not want to retreive an ini setting
+ *	during gameplay.
  * @param section name of section to find key in
  * @param key name of key to get value for
  * @param value pointer to int that will contain requested value
