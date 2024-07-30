@@ -36,7 +36,7 @@ int log_open(int profile)
  */
 static const char *tag_to_string(int tag)
 {
-	switch(tag) {
+	switch (tag) {
 	case LOG_TAG_INFO:
 		return "INFO";
 	case LOG_TAG_WARN:
@@ -56,12 +56,15 @@ static const char *tag_to_string(int tag)
 void output(int tag, const char *message)
 {
 	time_t now;
-	struct tm* utctime = gmtime(&now);
+	struct tm *utctime = gmtime(&now);
 
 	const char *ctag = tag_to_string(tag);
-	if(log_file != NULL)
-		fprintf(log_file, "%2d:%02d:%02d [%s]: %s\n", (utctime->tm_hour) % 24, utctime->tm_min, utctime->tm_sec, ctag, message);
-	printf("%2d:%02d:%02d [%s]: %s\n", (utctime->tm_hour) % 24, utctime->tm_min, utctime->tm_sec, ctag, message);
+	if (log_file != NULL)
+		fprintf(log_file, "%2d:%02d:%02d [%s]: %s\n",
+			(utctime->tm_hour) % 24, utctime->tm_min,
+			utctime->tm_sec, ctag, message);
+	printf("%2d:%02d:%02d [%s]: %s\n", (utctime->tm_hour) % 24,
+	       utctime->tm_min, utctime->tm_sec, ctag, message);
 }
 
 /**
@@ -82,7 +85,7 @@ void log_write(int tag, const char *message)
  */
 void log_close()
 {
-	if(log_file != NULL) {
+	if (log_file != NULL) {
 		fclose(log_file);
 		log_file = NULL;
 	}

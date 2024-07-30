@@ -31,7 +31,7 @@ int inicfg_open()
 	FILE *cfgfile = fopen(INICFG_CONFIG_FILE_PATH, "r");
 
 	// make sure we opened the file properly
-	if(cfgfile == NULL) {
+	if (cfgfile == NULL) {
 		return FUNC_FAILURE;
 	}
 	// parse the file in to memory
