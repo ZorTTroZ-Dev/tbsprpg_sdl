@@ -9,6 +9,7 @@ add_library(mem_manager OBJECT
         utilities/mem_manager/mem_manager.c
         utilities/mem_manager/mem_pool.c
         utilities/defines.h
+        utilities/logger.h
 )
 
 add_library(ini_config OBJECT
@@ -17,11 +18,14 @@ add_library(ini_config OBJECT
         utilities/defines.h
         utilities/hashmap.h
         utilities/types/hashmap.c
+        utilities/logger.h
+        utilities/logger/logger.c
 )
 
 add_executable(tbsprpg_sdl
         main.c
         utilities/defines.h
+        utilities/logger.h
 )
 
 target_link_libraries(tbsprpg_sdl

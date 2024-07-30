@@ -54,3 +54,4 @@ dkms.conf
 # cmake output
 /cmake-build-debug/
 .idea
+/cmake-build-debug-windows/

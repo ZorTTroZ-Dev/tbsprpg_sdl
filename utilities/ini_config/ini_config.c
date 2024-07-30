@@ -5,7 +5,7 @@
 #include "../ini_config.h"
 #include "../defines.h"
 
-#include <stddef.h>
+#include <stdio.h>
 
 struct inicfg_setting {
 	char *key;
@@ -28,7 +28,12 @@ static struct inicfg_section *inicfg_config = NULL;
 int inicfg_open()
 {
 	// open the file
+	FILE *cfgfile = fopen(INICFG_CONFIG_FILE_PATH, "r");
+
 	// make sure we opened the file properly
+	if(cfgfile == NULL) {
+		return FUNC_FAILURE;
+	}
 	// parse the file in to memory
 	// return status
 	// if parsing fails need to deallocate memory
