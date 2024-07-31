@@ -1,15 +1,16 @@
 #include <stdio.h>
-#include <stdlib.h>
-
-#include "utilities/mem_manager.h"
+#include "utilities/logger.h"
 
 int main(void)
 {
-	struct mmgr_handle *handle = malloc(sizeof(struct mmgr_handle));
-	handle->handle = 42;
-	printf("%d\n", handle->handle);
-	free(handle);
-	mmgr_alloc();
-	printf("Hello World!\n");
+	if(log_open(LOG_DEBUG) > 0) {
+		return 1;
+	}
+	log_write(LOG_TAG_INFO, "logger initialized");
+	log_write(LOG_TAG_INFO, "tbsprpg_sdl starting up");
+
+	log_write(LOG_TAG_INFO, "tbsprpg_sdl shutting down");
+	log_close();
+	log_write(LOG_TAG_INFO, "logger destroyed");
 	return 0;
 }

@@ -2,7 +2,12 @@
 * @file logger.c
 */
 
+#ifdef _WIN32
 #define _CRT_SECURE_NO_DEPRECATE
+#define LOG_FORMAT_STRING "%lld [%s]: %s\n"
+#else
+#define LOG_FORMAT_STRING "%ld [%s]: %s\n"
+#endif
 
 #include "../logger.h"
 #include "../defines.h"
@@ -55,16 +60,11 @@ static const char *tag_to_string(int tag)
  */
 void output(int tag, const char *message)
 {
-	time_t now;
-	struct tm *utctime = gmtime(&now);
-
+	const time_t now = time(NULL);
 	const char *ctag = tag_to_string(tag);
 	if (log_file != NULL)
-		fprintf(log_file, "%2d:%02d:%02d [%s]: %s\n",
-			(utctime->tm_hour) % 24, utctime->tm_min,
-			utctime->tm_sec, ctag, message);
-	printf("%2d:%02d:%02d [%s]: %s\n", (utctime->tm_hour) % 24,
-	       utctime->tm_min, utctime->tm_sec, ctag, message);
+		fprintf(log_file, LOG_FORMAT_STRING, now, ctag, message);
+	printf(LOG_FORMAT_STRING, now, ctag, message);
 }
 
 /**
