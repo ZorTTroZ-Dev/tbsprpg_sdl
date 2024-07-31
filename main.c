@@ -3,7 +3,7 @@
 
 int main(void)
 {
-	if(log_open(LOG_DEBUG) > 0) {
+	if (log_open(LOG_DEBUG) > 0) {
 		return 1;
 	}
 	log_write(LOG_TAG_INFO, "logger initialized");
