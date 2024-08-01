@@ -13,6 +13,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 
 struct inicfg_setting {
 	char *key;
@@ -31,10 +33,84 @@ static struct inicfg_section *inicfg_config = NULL;
 static int parse_config(char *buffer)
 {
 	bool comment = false;
+	bool section = false;
+	// bool setting = false;
+
+	struct inicfg_section *cursection = NULL;
+	char *token = NULL;
+	int token_len = 0;
+
 	for (char *p = buffer; *p != '\0'; *p++) {
-		printf("%c", *p);
+		if (*p == '[') {
+			section = true;
+			continue;
+		}
+		if (*p == '#') {
+			comment = true;
+			continue;
+		}
+
+		if (comment && *p == '\n') {
+			comment = false;
+			token = NULL;
+			token_len = 0;
+			continue;
+		}
+
+		if (section && *p == ']' && token != NULL && token_len > 0) {
+			char *section_name = calloc(1, token_len);
+			if (section_name == NULL) {
+				free(section_name);
+				goto parse_failure_exit;
+			}
+			memcpy(section_name, token, token_len);
+			struct inicfg_section *newsection =
+				malloc(sizeof(struct inicfg_section));
+			if (newsection == NULL) {
+				free(newsection);
+				goto parse_failure_exit;
+			}
+			newsection->section_name = section_name;
+			newsection->settings = NULL;
+			newsection->next = cursection;
+			cursection = newsection;
+			section = false;
+			token = NULL;
+			token_len = 0;
+			continue;
+		}
+
+		if (*p != '\n' && *(p + 1) != '\0') {
+			if (token == NULL) {
+				token = p;
+				token_len = 1;
+			} else {
+				token_len++;
+			}
+		} else if (*(p + 1) == '\0') {
+			if (token == NULL) {
+				token = p;
+				token_len = 1;
+			} else {
+				token_len++;
+			}
+			token = NULL;
+			token_len = 0;
+			printf("token contains key/value\n");
+		} else if (*p == '\n' && cursection != NULL && token_len > 0) {
+			// TODO: make sure contains equal sign
+			//	set key set value add setting to the section
+			token = NULL;
+			token_len = 0;
+			printf("token contains key/value\n");
+		}
 	}
+
+parse_success_exit:
 	return FUNC_SUCCESS;
+parse_failure_exit:
+	// TODO: Walk section list free memory
+	return FUNC_FAILURE;
 }
 
 /**
