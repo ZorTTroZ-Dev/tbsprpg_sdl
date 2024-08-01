@@ -2,22 +2,40 @@
  * @file ini_config.c
  */
 
+#ifdef _WIN32
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
+
 #include "../ini_config.h"
 #include "../defines.h"
+#include "../logger.h"
 
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 struct inicfg_setting {
 	char *key;
 	char *value;
+	struct inicfg_setting *next;
 };
 
 struct inicfg_section {
 	char *section_name;
 	struct inicfg_setting *settings;
+	struct inicfg_section *next;
 };
 
 static struct inicfg_section *inicfg_config = NULL;
+
+static int parse_config(char *buffer)
+{
+	bool comment = false;
+	for (char *p = buffer; *p != '\0'; *p++) {
+		printf("%c", *p);
+	}
+	return FUNC_SUCCESS;
+}
 
 /**
  * @brief Open the default config ini file, parse the file and place it in
@@ -32,12 +50,39 @@ int inicfg_open()
 
 	// make sure we opened the file properly
 	if (cfgfile == NULL) {
+		log_write(LOG_TAG_ERR, "failed to open config file");
 		return FUNC_FAILURE;
 	}
-	// parse the file in to memory
-	// return status
-	// if parsing fails need to deallocate memory
+
+	// read file in to memory
+	fseek(cfgfile, 0, SEEK_END);
+	const int sz = ftell(cfgfile);
+	if (sz == 0)
+		goto success_exit;
+	fseek(cfgfile, 0, SEEK_SET);
+	char *buffer = calloc(1, sz + 1);
+	if (buffer == NULL) {
+		goto failure_exit;
+	}
+	const int bytesread = fread(buffer, sizeof(char), sz, cfgfile);
+	if (bytesread != sz) {
+		goto failure_exit;
+	}
+
+	// parse it
+	const int result = parse_config(buffer);
+	if (result == FUNC_FAILURE) {
+		goto failure_exit;
+	}
+
+success_exit:
+	free(buffer);
 	return FUNC_SUCCESS;
+
+failure_exit:
+	free(buffer);
+	log_write(LOG_TAG_ERR, "failed to read config file");
+	return FUNC_FAILURE;
 }
 
 /**

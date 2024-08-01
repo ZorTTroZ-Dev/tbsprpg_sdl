@@ -28,3 +28,5 @@ target_link_libraries(tbsprpg_sdl
 )
 
 add_subdirectory(google_tests)
+
+configure_file(config.ini config.ini COPYONLY)
