@@ -13,7 +13,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 
 struct inicfg_setting {
@@ -30,16 +29,105 @@ struct inicfg_section {
 
 static struct inicfg_section *inicfg_config = NULL;
 
+static struct inicfg_section *new_section(const char *sectionname, int namelen)
+{
+	char *section_name = calloc(namelen + 1, 1);
+	if (section_name == NULL) {
+		free(section_name);
+		return NULL;
+	}
+	memcpy(section_name, sectionname, namelen);
+	*(section_name + namelen) = '\0';
+	struct inicfg_section *newsection =
+		malloc(sizeof(struct inicfg_section));
+	if (newsection == NULL) {
+		free(section_name);
+		free(newsection);
+		return NULL;
+	}
+	newsection->section_name = section_name;
+	newsection->settings = NULL;
+	newsection->next = NULL;
+	return newsection;
+}
+
+static struct inicfg_setting *new_setting(const char *settingstr, int len)
+{
+	//char buffer[len + 1];
+	char *buffer = calloc(len + 1, 1);
+	memcpy(buffer, settingstr, len);
+	buffer[len] = '\0';
+
+	char *eqsn = strchr(buffer, '=');
+	if (eqsn == NULL) {
+		return NULL; // malformed setting no equal sign
+	}
+
+	int idx = eqsn - buffer;
+
+	char *key = calloc(idx + 1, 1);
+	if (key == NULL) {
+		free(key);
+		return NULL;
+	}
+	memcpy(key, buffer, idx);
+
+	char *val = calloc(len - idx, 1);
+	if (val == NULL) {
+		free(key);
+		free(val);
+		return NULL;
+	}
+	memcpy(val, eqsn + 1, len - idx - 1);
+
+	struct inicfg_setting *setting = malloc(sizeof(struct inicfg_setting));
+	setting->key = key;
+	setting->value = val;
+	setting->next = NULL;
+
+	free(buffer);
+
+	return setting;
+}
+
+static void free_setting(struct inicfg_setting *setting)
+{
+	while (setting != NULL) {
+		free(setting->key);
+		setting->key = NULL;
+		free(setting->value);
+		setting->value = NULL;
+		struct inicfg_setting *ns = setting->next;
+		free(setting);
+		setting = ns;
+	}
+}
+
+static void free_section(struct inicfg_section *section)
+{
+	while (section != NULL) {
+		free(section->section_name);
+		section->section_name = NULL;
+		free_setting(section->settings);
+		struct inicfg_section *ns = section->next;
+		free(section);
+		section = ns;
+	}
+}
+
 static int parse_config(char *buffer)
 {
 	bool comment = false;
 	bool section = false;
-	// bool setting = false;
+	bool closetoken = false;
+	bool tokenize = false;
+	bool setting = false;
 
 	struct inicfg_section *cursection = NULL;
 	char *token = NULL;
 	int token_len = 0;
 
+	// TODO: Refactor
 	for (char *p = buffer; *p != '\0'; *p++) {
 		if (*p == '[') {
 			section = true;
@@ -58,20 +146,10 @@ static int parse_config(char *buffer)
 		}
 
 		if (section && *p == ']' && token != NULL && token_len > 0) {
-			char *section_name = calloc(1, token_len);
-			if (section_name == NULL) {
-				free(section_name);
-				goto parse_failure_exit;
-			}
-			memcpy(section_name, token, token_len);
 			struct inicfg_section *newsection =
-				malloc(sizeof(struct inicfg_section));
-			if (newsection == NULL) {
-				free(newsection);
+				new_section(token, token_len);
+			if (newsection == NULL)
 				goto parse_failure_exit;
-			}
-			newsection->section_name = section_name;
-			newsection->settings = NULL;
 			newsection->next = cursection;
 			cursection = newsection;
 			section = false;
@@ -81,35 +159,53 @@ static int parse_config(char *buffer)
 		}
 
 		if (*p != '\n' && *(p + 1) != '\0') {
-			if (token == NULL) {
-				token = p;
-				token_len = 1;
-			} else {
-				token_len++;
-			}
+			tokenize = true;
 		} else if (*(p + 1) == '\0') {
+			tokenize = true;
+			closetoken = true;
+			setting = true;
+		} else if (*p == '\n' && cursection != NULL && token_len > 0) {
+			closetoken = true;
+			setting = true;
+		}
+
+		if (tokenize) {
 			if (token == NULL) {
 				token = p;
 				token_len = 1;
 			} else {
 				token_len++;
 			}
+			tokenize = false;
+		}
+
+		if (setting) {
+			struct inicfg_setting *newsetting =
+				new_setting(token, token_len);
+			if (newsetting == NULL) {
+				goto parse_failure_exit;
+			}
+			if (cursection == NULL) {
+				free_setting(newsetting);
+				goto parse_failure_exit;
+			}
+			newsetting->next = cursection->settings;
+			cursection->settings = newsetting;
+			setting = false;
+		}
+
+		if (closetoken) {
 			token = NULL;
 			token_len = 0;
-			printf("token contains key/value\n");
-		} else if (*p == '\n' && cursection != NULL && token_len > 0) {
-			// TODO: make sure contains equal sign
-			//	set key set value add setting to the section
-			token = NULL;
-			token_len = 0;
-			printf("token contains key/value\n");
+			closetoken = false;
 		}
 	}
 
-parse_success_exit:
+	inicfg_config = cursection;
 	return FUNC_SUCCESS;
+
 parse_failure_exit:
-	// TODO: Walk section list free memory
+	free_section(cursection);
 	return FUNC_FAILURE;
 }
 
