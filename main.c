@@ -12,6 +12,7 @@ int main(void)
 	log_write(LOG_TAG_INFO, "tbsprpg_sdl starting up");
 
 	inicfg_open();
+	inicfg_close();
 
 	log_write(LOG_TAG_INFO, "tbsprpg_sdl shutting down");
 	log_close();

@@ -15,6 +15,8 @@ add_library(utilities OBJECT
         utilities/types/hashmap.c
         utilities/logger.h
         utilities/logger/logger.c
+        utilities/strutils.h
+        utilities/strutils/strutils.c
 )
 
 add_executable(tbsprpg_sdl

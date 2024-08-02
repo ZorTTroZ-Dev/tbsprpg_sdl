@@ -9,6 +9,7 @@
 #include "../ini_config.h"
 #include "../defines.h"
 #include "../logger.h"
+#include "../strutils.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -17,7 +18,9 @@
 
 struct inicfg_setting {
 	char *key;
+	char *trimmed_key;
 	char *value;
+	char *trimmed_value;
 	struct inicfg_setting *next;
 };
 
@@ -29,6 +32,12 @@ struct inicfg_section {
 
 static struct inicfg_section *inicfg_config = NULL;
 
+/**
+ * @brief Create a new section
+ * @param sectionname char pointer new section name
+ * @param namelen int length of section name
+ * @return return pointer to new section or NULL on failure
+ */
 static struct inicfg_section *new_section(const char *sectionname, int namelen)
 {
 	char *section_name = calloc(namelen + 1, 1);
@@ -51,15 +60,21 @@ static struct inicfg_section *new_section(const char *sectionname, int namelen)
 	return newsection;
 }
 
+/**
+ * @brief Parse then create new setting
+ * @param settingstr char pointer of string representing setting
+ * @param len int length of setting string
+ * @return pointer to allocated setting struct or NULL on failure
+ */
 static struct inicfg_setting *new_setting(const char *settingstr, int len)
 {
-	//char buffer[len + 1];
 	char *buffer = calloc(len + 1, 1);
 	memcpy(buffer, settingstr, len);
 	buffer[len] = '\0';
 
 	char *eqsn = strchr(buffer, '=');
 	if (eqsn == NULL) {
+		free(buffer);
 		return NULL; // malformed setting no equal sign
 	}
 
@@ -67,6 +82,7 @@ static struct inicfg_setting *new_setting(const char *settingstr, int len)
 
 	char *key = calloc(idx + 1, 1);
 	if (key == NULL) {
+		free(buffer);
 		free(key);
 		return NULL;
 	}
@@ -74,6 +90,7 @@ static struct inicfg_setting *new_setting(const char *settingstr, int len)
 
 	char *val = calloc(len - idx, 1);
 	if (val == NULL) {
+		free(buffer);
 		free(key);
 		free(val);
 		return NULL;
@@ -82,7 +99,9 @@ static struct inicfg_setting *new_setting(const char *settingstr, int len)
 
 	struct inicfg_setting *setting = malloc(sizeof(struct inicfg_setting));
 	setting->key = key;
+	setting->trimmed_key = strtrim(key);
 	setting->value = val;
+	setting->trimmed_value = strtrim(val);
 	setting->next = NULL;
 
 	free(buffer);
@@ -90,6 +109,10 @@ static struct inicfg_setting *new_setting(const char *settingstr, int len)
 	return setting;
 }
 
+/**
+ * @brief Free the allocated memory for the given setting
+ * @param setting setting to free memory of
+ */
 static void free_setting(struct inicfg_setting *setting)
 {
 	while (setting != NULL) {
@@ -103,6 +126,10 @@ static void free_setting(struct inicfg_setting *setting)
 	}
 }
 
+/**
+ * @brief Free the allocated memory for the given section
+ * @param section section to free memory of
+ */
 static void free_section(struct inicfg_section *section)
 {
 	while (section != NULL) {
@@ -115,6 +142,11 @@ static void free_section(struct inicfg_section *section)
 	}
 }
 
+/**
+ * @brief Parse the contents of the buffer build ini file model in memory
+ * @param buffer pointer to char of contents to parse
+ * @return return 0 on success 1 on failure
+ */
 static int parse_config(char *buffer)
 {
 	bool comment = false;
@@ -226,13 +258,14 @@ int inicfg_open()
 		return FUNC_FAILURE;
 	}
 
+	char *buffer = NULL;
 	// read file in to memory
 	fseek(cfgfile, 0, SEEK_END);
 	const int sz = ftell(cfgfile);
 	if (sz == 0)
 		goto success_exit;
 	fseek(cfgfile, 0, SEEK_SET);
-	char *buffer = calloc(1, sz + 1);
+	buffer = calloc(1, sz + 1);
 	if (buffer == NULL) {
 		goto failure_exit;
 	}
@@ -248,11 +281,13 @@ int inicfg_open()
 	}
 
 success_exit:
-	free(buffer);
+	if (buffer != NULL)
+		free(buffer);
 	return FUNC_SUCCESS;
 
 failure_exit:
-	free(buffer);
+	if (buffer != NULL)
+		free(buffer);
 	log_write(LOG_TAG_ERR, "failed to read config file");
 	return FUNC_FAILURE;
 }
@@ -292,9 +327,8 @@ int inicfg_getint(char *section, char *key, int *value)
 /**
  * @brief Free memory allocated from opening the default config ini file
  * @see inicfg_open
- * @return int - 0 on success 1 on failure
  */
-int inicfg_close()
+void inicfg_close()
 {
-	return FUNC_SUCCESS;
+	free_section(inicfg_config);
 }
