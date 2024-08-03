@@ -170,13 +170,6 @@ static int parse_config(char *buffer)
 			continue;
 		}
 
-		if (comment && *p == '\n') {
-			comment = false;
-			token = NULL;
-			token_len = 0;
-			continue;
-		}
-
 		if (section && *p == ']' && token != NULL && token_len > 0) {
 			struct inicfg_section *newsection =
 				new_section(token, token_len);
@@ -201,13 +194,15 @@ static int parse_config(char *buffer)
 			setting = true;
 		}
 
-		if (tokenize) {
+		if (tokenize && !comment) {
 			if (token == NULL) {
 				token = p;
 				token_len = 1;
 			} else {
 				token_len++;
 			}
+			tokenize = false;
+		} else {
 			tokenize = false;
 		}
 
@@ -224,6 +219,7 @@ static int parse_config(char *buffer)
 			newsetting->next = cursection->settings;
 			cursection->settings = newsetting;
 			setting = false;
+			comment = false;
 		}
 
 		if (closetoken) {

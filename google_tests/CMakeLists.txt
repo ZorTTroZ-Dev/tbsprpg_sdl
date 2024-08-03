@@ -21,6 +21,8 @@ enable_testing()
 add_executable(
         tbsprpg_sdl_tests
         utilities/mem_manager/mem_pool_tests.cpp
+        ../utilities/strutils.h
+        ../utilities/strutils/strutils.c
         ../utilities/mem_manager.h
         ../utilities/mem_manager/mem_pool.c
 )
