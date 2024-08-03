@@ -12,6 +12,9 @@ int main(void)
 	log_write(LOG_TAG_INFO, "tbsprpg_sdl starting up");
 
 	inicfg_open();
+	int num_pools = 0;
+	inicfg_getint("mem_manager", "num_pools", &num_pools);
+	printf("%d\n", num_pools);
 	inicfg_close();
 
 	log_write(LOG_TAG_INFO, "tbsprpg_sdl shutting down");

@@ -79,7 +79,6 @@ static struct inicfg_setting *new_setting(const char *settingstr, int len)
 	}
 
 	int idx = eqsn - buffer;
-
 	char *key = calloc(idx + 1, 1);
 	if (key == NULL) {
 		free(buffer);
@@ -159,7 +158,6 @@ static int parse_config(char *buffer)
 	char *token = NULL;
 	int token_len = 0;
 
-	// TODO: Refactor
 	for (char *p = buffer; *p != '\0'; *p++) {
 		if (*p == '[') {
 			section = true;
@@ -277,15 +275,51 @@ int inicfg_open()
 	}
 
 success_exit:
+	fclose(cfgfile);
 	if (buffer != NULL)
 		free(buffer);
 	return FUNC_SUCCESS;
 
 failure_exit:
+	fclose(cfgfile);
 	if (buffer != NULL)
 		free(buffer);
 	log_write(LOG_TAG_ERR, "failed to read config file");
 	return FUNC_FAILURE;
+}
+
+/**
+ * @brief Go thourgh list of sections and settings loaded from config file.
+ * @param section char pointer to name of section to search for
+ * @param key char pointer to key in give senction to search for
+ * @return pointer to inicfg_setting struct, NULL if setting not found
+ */
+struct inicfg_setting *find_setting(const char *section, const char *key)
+{
+	if (inicfg_config == NULL) {
+		return NULL;
+	}
+
+	struct inicfg_section *config = inicfg_config;
+	while (config != NULL) {
+		int scres = strcmp(config->section_name, section);
+		if (scres == 0) { // we found the right section
+			if (config->settings == NULL) {
+				return NULL;
+			}
+			struct inicfg_setting *setting = config->settings;
+			while (setting != NULL) {
+				int sscres = strcmp(setting->trimmed_key, key);
+				if (sscres == 0) {
+					return setting;
+				}
+				setting = setting->next;
+			}
+		}
+		config = config->next;
+	}
+
+	return NULL;
 }
 
 /**
@@ -297,27 +331,34 @@ failure_exit:
  * @param section name of section to find key in
  * @param key name of key to get value for
  * @param value pointer to char that will contain the requested value
- * @return int - 0 on success 1 on failure
+ *	will be set to NULL if not found
  */
-int inicfg_getstring(char *section, char *key, char *value)
+void inicfg_getstring(const char *section, const char *key, char *value)
 {
-	return FUNC_SUCCESS;
+	value = NULL;
+	struct inicfg_setting *setting = find_setting(section, key);
+	if (setting != NULL)
+		value = setting->trimmed_value;
 }
 
 /**
 * @brief Retrieve the value for the given key in the given section
  *	will point the value parameter to the key value, do not free
- *	the given value pointer.
+ *	the given value pointer. Uses atoi so if the setting isn't an integer
+ *	or its bigger than an int the value will point to 0.
  * @note This implementation is naive you may not want to retreive an ini setting
  *	during gameplay.
  * @param section name of section to find key in
  * @param key name of key to get value for
  * @param value pointer to int that will contain requested value
- * @return int - 0 on success 1 on failure
+ *	will be set to NULL if not found
  */
-int inicfg_getint(char *section, char *key, int *value)
+void inicfg_getint(const char *section, const char *key, int *value)
 {
-	return FUNC_SUCCESS;
+	*value = 0;
+	struct inicfg_setting *setting = find_setting(section, key);
+	if (setting != NULL)
+		*value = atoi(setting->trimmed_value);
 }
 
 /**
