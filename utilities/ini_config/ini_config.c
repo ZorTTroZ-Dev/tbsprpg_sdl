@@ -16,21 +16,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * @struct inicfg_setting
+ * @brief individual setting in ini file
+ */
 struct inicfg_setting {
-	char *key;
-	char *trimmed_key;
-	char *value;
-	char *trimmed_value;
-	struct inicfg_setting *next;
+	char *key; //!< char pointer - key for the setting
+	char *trimmed_key; //!< char pointer - key without leading/trailing spaces
+	char *value; //!< char pointer - value for key
+	char *trimmed_value; //!< char pointer - value without leading/trailing spaces
+	struct inicfg_setting *next; //<! pointer to next setting in section
 };
 
+/**
+ * @struct inicfg_section
+ * @brief representation of section in ini file, all settings contained in a
+ *	section
+ */
 struct inicfg_section {
-	char *section_name;
-	struct inicfg_setting *settings;
-	struct inicfg_section *next;
+	char *section_name; //!< char pointer - name of the section used for lookups
+	struct inicfg_setting *settings; //!< pointer to settings in this section
+	struct inicfg_section *next; //!< pointer to next section
 };
 
-static struct inicfg_section *inicfg_config = NULL;
+static struct inicfg_section *inicfg_config = NULL; //!< in memory representation of ini config file
 
 /**
  * @brief Create a new section
