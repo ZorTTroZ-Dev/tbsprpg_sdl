@@ -27,6 +27,9 @@ struct mmgr_pool_cfg {
 
 extern void mmgr_alloc();
 extern void mmgr_free();
+extern int mmgr_open(const struct mmgr_pool_cfg *config);
+extern void mmgr_close();
+
 extern int mmgr_pool_open(const struct mmgr_pool_cfg *config);
 extern void mmgr_pool_close();
 

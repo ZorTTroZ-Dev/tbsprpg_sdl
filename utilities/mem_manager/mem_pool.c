@@ -5,11 +5,13 @@
 #include "../defines.h"
 #include "../logger.h"
 #include "../mem_manager.h"
+#include "mem_pool.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /**
- * @struct mmgr_pool_chunk
+ * @struct mmgr_pool_chunk_hdr
  * @brief individual chunk in memory pool
  */
 struct mmgr_pool_chunk_hdr {
@@ -66,9 +68,10 @@ static struct mmgr_mem_pool *new_pool(uint32_t chunk_size, uint32_t num_chunks)
 		return NULL;
 	}
 	for (int i = 0; i < num_chunks; i++) {
-		char *chunk_ptr = chunks + (i * chunk_step);
+		//char *chunk_ptr = chunks + (i * chunk_step);
 		struct mmgr_pool_chunk_hdr *chunk =
-			(struct mmgr_pool_chunk_hdr *)chunk_ptr;
+			(struct mmgr_pool_chunk_hdr *)chunks;
+		chunk = chunk + (i * chunk_step);
 		chunk->size = chunk_size;
 		chunk->used = 0;
 		chunk->pool = pool;
@@ -130,4 +133,45 @@ void mmgr_pool_close()
 		pools->num_pools = 0;
 		free(pools);
 	}
+}
+
+void *get_next_chunk(struct mmgr_mem_pool *pool, size_t size)
+{
+	if (pool->free == NULL) // pool is full
+		return NULL;
+
+	struct mmgr_pool_chunk_hdr *chunk = pool->free;
+	pool->num_used_chunks += 1;
+	pool->free = chunk->next;
+	chunk->used = size;
+	return chunk + chunk_hdr_size;
+}
+
+void *plalloc(const size_t size)
+{
+	// find the pool, pools are assumed to be in ascending order by size
+	if (pools == NULL || pools->pools == NULL)
+		return NULL;
+
+	struct mmgr_mem_pool *pool = pools->pools;
+	while (pool != NULL) {
+		if (pool->chunk_size >= size) {
+			return get_next_chunk(pool, size);
+		}
+		pool = pool->next;
+	}
+
+	return NULL;
+}
+
+void plfree(void *data)
+{
+	char *chunk_start = data;
+	struct mmgr_pool_chunk_hdr *chunk =
+		(struct mmgr_pool_chunk_hdr *)chunk_start - chunk_hdr_size;
+	chunk->used = 0;
+	memset(chunk + chunk_hdr_size, 0, sizeof(chunk->size));
+	chunk->pool->num_used_chunks -= 1;
+	chunk->next = chunk->pool->free;
+	chunk->pool->free = chunk;
 }
