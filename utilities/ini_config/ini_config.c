@@ -39,7 +39,8 @@ struct inicfg_section {
 	struct inicfg_section *next; //!< pointer to next section
 };
 
-static struct inicfg_section *inicfg_config = NULL; //!< in memory representation of ini config file
+static struct inicfg_section *inicfg_config =
+	NULL; //!< in memory representation of ini config file
 
 /**
  * @brief Create a new section
