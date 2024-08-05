@@ -15,13 +15,19 @@ struct mmgr_handle {
 	void *data; //!< pointer to allocated memory
 };
 
+/**
+ * @struct mmgr_pool_cfg
+ * @brief object for pool configuration
+ */
+struct mmgr_pool_cfg {
+	uint16_t num_pools; //!< number of pools to create
+	uint32_t *chunk_sizes; //!< size of chunk in each pool
+	uint32_t *chunk_counts; //!< how many chunks in each pool
+};
+
 extern void mmgr_alloc();
 extern void mmgr_free();
-
-// initialize the memory pools, needs to be called before allocating memory
-// memory pool will consist of linked list of memory chunks in use
-// and a linked list of memory chunks not in use a chunk will contain an id
-// a link to the next chunk a pointer to the actual memory
-extern int mmgr_pool_init();
+extern int mmgr_pool_open(const struct mmgr_pool_cfg *config);
+extern void mmgr_pool_close();
 
 #endif //MEM_MANAGER_H
