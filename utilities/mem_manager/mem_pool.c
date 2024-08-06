@@ -11,27 +11,27 @@
 #include <string.h>
 
 /**
- * @struct mmgr_pool_chunk_hdr
+ * @struct mmgr_chunk_hdr
  * @brief individual chunk in memory pool
  */
-struct mmgr_pool_chunk_hdr {
+struct mmgr_chunk_hdr {
 	uint32_t size; //!< size of the data pointer in chunk
 	uint32_t used; //!< size of object contained
-	struct mmgr_pool_chunk_hdr *next; //!< pointer to next chunk
-	struct mmgr_mem_pool *pool; //!< pointer to pool this chunk belongs to
+	struct mmgr_chunk_hdr *next; //!< pointer to next chunk
+	struct mmgr_pool *pool; //!< pointer to pool this chunk belongs to
 };
 
 /**
- * @struct mmgr_mem_pool
+ * @struct mmgr_pool
  * @brief memory pool
  */
-struct mmgr_mem_pool {
+struct mmgr_pool {
 	uint32_t chunk_size; //!< chunk size for this pool
 	uint32_t num_chunks; //!< how many chunks this pool contains
 	uint32_t num_used_chunks; //!< how many chunks are in use
-	struct mmgr_pool_chunk_hdr *chunks; //!< pointer to first chunk
-	struct mmgr_pool_chunk_hdr *free; //!< pointer to first free chunk
-	struct mmgr_mem_pool *next; //!< pointer to next pool
+	struct mmgr_chunk_hdr *chunks; //!< pointer to first chunk
+	struct mmgr_chunk_hdr *free; //!< pointer to first free chunk
+	struct mmgr_pool *next; //!< pointer to next pool
 };
 
 /**
@@ -40,19 +40,27 @@ struct mmgr_mem_pool {
  */
 struct mmgr_pool_complex {
 	uint32_t num_pools; //!< how many pools are there
-	struct mmgr_mem_pool *pools; //!< pointer to first pool
+	struct mmgr_pool *pools; //!< pointer to first pool
 };
 
 static struct mmgr_pool_complex *pools = NULL; //!< pointer to the pools
 
-static const uint32_t chunk_hdr_size = sizeof(struct mmgr_pool_chunk_hdr);
+static const uint32_t chunk_hdr_size =
+	sizeof(struct mmgr_chunk_hdr); //!< size of the chunk header
 
-static struct mmgr_mem_pool *new_pool(uint32_t chunk_size, uint32_t num_chunks)
+/**
+ * @brief Create a new pool, allocate and initialize all of the chunks in the pool
+ * @param chunk_size uint32_t - how big is each chunk of memory in the pool
+ * @param num_chunks uint32_t - how man chunks are in the pool
+ * @return pointer to mmgr_pool struct of the created pool
+ */
+static struct mmgr_pool *new_pool(const uint32_t chunk_size,
+				  const uint32_t num_chunks)
 {
 	if (chunk_size == 0 || num_chunks == 0)
 		return NULL;
 
-	struct mmgr_mem_pool *pool = malloc(sizeof(struct mmgr_mem_pool));
+	struct mmgr_pool *pool = malloc(sizeof(struct mmgr_pool));
 	if (pool == NULL)
 		return NULL;
 
@@ -68,9 +76,7 @@ static struct mmgr_mem_pool *new_pool(uint32_t chunk_size, uint32_t num_chunks)
 		return NULL;
 	}
 	for (int i = 0; i < num_chunks; i++) {
-		//char *chunk_ptr = chunks + (i * chunk_step);
-		struct mmgr_pool_chunk_hdr *chunk =
-			(struct mmgr_pool_chunk_hdr *)chunks;
+		struct mmgr_chunk_hdr *chunk = (struct mmgr_chunk_hdr *)chunks;
 		chunk = chunk + (i * chunk_step);
 		chunk->size = chunk_size;
 		chunk->used = 0;
@@ -81,12 +87,17 @@ static struct mmgr_mem_pool *new_pool(uint32_t chunk_size, uint32_t num_chunks)
 		if (i + 1 != num_chunks)
 			chunk->next = chunk + chunk_step;
 	}
-	pool->chunks = (struct mmgr_pool_chunk_hdr *)chunks;
-	pool->free = (struct mmgr_pool_chunk_hdr *)chunks;
+	pool->chunks = (struct mmgr_chunk_hdr *)chunks;
+	pool->free = (struct mmgr_chunk_hdr *)chunks;
 
 	return pool;
 }
 
+/**
+ * @brief Create and initialize memory pools based on given configuration
+ * @param config pointer to mmgr_pool_cfg that contains pool configuration
+ * @return int 0 on success 1 on failure
+ */
 int mmgr_pool_open(const struct mmgr_pool_cfg *config)
 {
 	if (config->num_pools < 1)
@@ -99,8 +110,8 @@ int mmgr_pool_open(const struct mmgr_pool_cfg *config)
 	pools->pools = NULL;
 
 	for (int i = 0; i < config->num_pools; i++) {
-		struct mmgr_mem_pool *pool = new_pool(config->chunk_sizes[i],
-						      config->chunk_counts[i]);
+		struct mmgr_pool *pool = new_pool(config->chunk_sizes[i],
+						  config->chunk_counts[i]);
 		if (pool == NULL)
 			goto mmgr_pool_init_failure;
 
@@ -116,16 +127,23 @@ mmgr_pool_init_failure:
 	return FUNC_FAILURE;
 }
 
-void free_pools(struct mmgr_mem_pool *pool)
+/**
+ * @brief Free all allocated memory associated with a memory pool.
+ * @param pool pointer to mmgr_pool to free memory of
+ */
+void free_pools(struct mmgr_pool *pool)
 {
 	while (pool != NULL) {
 		free(pool->chunks);
-		struct mmgr_mem_pool *npool = pool->next;
+		struct mmgr_pool *npool = pool->next;
 		free(pool);
 		pool = npool;
 	}
 }
 
+/**
+ * @brief Free all allocated memory associated with memory pools.
+ */
 void mmgr_pool_close()
 {
 	if (pools != NULL) {
@@ -135,25 +153,39 @@ void mmgr_pool_close()
 	}
 }
 
-void *get_next_chunk(struct mmgr_mem_pool *pool, size_t size)
+/**
+ * @brief Get the raw allocated memory of the next available chunk in the
+ *	memory pool
+ * @param pool pointer to mmgr_pool - pool to find the next chunk in
+ * @param size size_t - amount of memory to allocate
+ * @return void pointer to raw memory for use, NULL if memory pool full
+ */
+void *get_next_chunk(struct mmgr_pool *pool, size_t size)
 {
 	if (pool->free == NULL) // pool is full
 		return NULL;
 
-	struct mmgr_pool_chunk_hdr *chunk = pool->free;
+	struct mmgr_chunk_hdr *chunk = pool->free;
 	pool->num_used_chunks += 1;
 	pool->free = chunk->next;
 	chunk->used = size;
 	return chunk + chunk_hdr_size;
 }
 
+/**
+ * @brief Allocate memory from the memory pool, will attempt to get memory from
+ *	the pool with the smallest adequet chunk size
+ * @param size size_t - amount of memory to allocate
+ * @return void pointer to raw memory for use, NULL if pool full or pools not
+ *	setup
+ */
 void *plalloc(const size_t size)
 {
 	// find the pool, pools are assumed to be in ascending order by size
 	if (pools == NULL || pools->pools == NULL)
 		return NULL;
 
-	struct mmgr_mem_pool *pool = pools->pools;
+	struct mmgr_pool *pool = pools->pools;
 	while (pool != NULL) {
 		if (pool->chunk_size >= size) {
 			return get_next_chunk(pool, size);
@@ -164,11 +196,17 @@ void *plalloc(const size_t size)
 	return NULL;
 }
 
-void plfree(void *data)
+/**
+ * @brief Return the assocated chunk of memory back to the pool
+ * @param mem void pointer to chunk of memory to return to pool
+ */
+void plfree(void *mem)
 {
-	char *chunk_start = data;
-	struct mmgr_pool_chunk_hdr *chunk =
-		(struct mmgr_pool_chunk_hdr *)chunk_start - chunk_hdr_size;
+	if (mem == NULL)
+		return;
+	char *chunk_start = mem;
+	struct mmgr_chunk_hdr *chunk =
+		(struct mmgr_chunk_hdr *)chunk_start - chunk_hdr_size;
 	chunk->used = 0;
 	memset(chunk + chunk_hdr_size, 0, sizeof(chunk->size));
 	chunk->pool->num_used_chunks -= 1;
