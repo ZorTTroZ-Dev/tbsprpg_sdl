@@ -4,16 +4,8 @@
 
 #ifndef MEM_MANAGER_H
 #define MEM_MANAGER_H
+#include <stddef.h>
 #include <stdint.h>
-
-/**
- * @struct mmgr_handle
- * @brief Handle for allocated data from memory manager
- */
-struct mmgr_handle {
-	uint32_t handle; //!< comprised of a magic number and a memory chunk id
-	void *data; //!< pointer to allocated memory
-};
 
 /**
  * @struct mmgr_pool_cfg
@@ -25,12 +17,9 @@ struct mmgr_pool_cfg {
 	uint32_t *chunk_counts; //!< how many chunks in each pool
 };
 
-extern void mmgr_alloc();
-extern void mmgr_free();
-extern int mmgr_open(const struct mmgr_pool_cfg *config);
+extern void *mmgr_alloc(size_t size);
+extern void mmgr_free(void *mem);
+extern int mmgr_open(const struct mmgr_pool_cfg *pool_cfg);
 extern void mmgr_close();
-
-extern int mmgr_pool_open(const struct mmgr_pool_cfg *config);
-extern void mmgr_pool_close();
 
 #endif //MEM_MANAGER_H
