@@ -23,7 +23,10 @@ add_executable(
         utilities/mem_manager/mem_pool_tests.cpp
         ../utilities/strutils.h
         ../utilities/strutils/strutils.c
+        ../utilities/logger.h
+        ../utilities/logger/logger.c
         ../utilities/mem_manager.h
+        ../utilities/mem_manager/mem_pool.h
         ../utilities/mem_manager/mem_pool.c
 )
 target_link_libraries(

@@ -100,6 +100,9 @@ static struct mmgr_pool *new_pool(const uint32_t chunk_size,
  */
 int mmgr_pool_open(const struct mmgr_pool_cfg *config)
 {
+	if (config == NULL)
+		goto mmgr_pool_init_failure;
+
 	if (config->num_pools < 1)
 		return FUNC_SUCCESS;
 
@@ -150,6 +153,7 @@ void mmgr_pool_close()
 		free_pools(pools->pools);
 		pools->num_pools = 0;
 		free(pools);
+		pools = NULL;
 	}
 }
 
