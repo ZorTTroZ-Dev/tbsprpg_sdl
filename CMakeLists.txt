@@ -40,24 +40,26 @@ if (TBSPRPG_LINUX_AMD64)
     include_directories(${CMAKE_SOURCE_DIR}/lib/linux_amd64/include)
     target_include_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/linux_amd64/include/SDL2)
     target_link_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/linux_amd64/lib)
-    target_link_libraries(tbsprpg_sdl m)
+    target_link_libraries(tbsprpg_sdl
+            utilities
+            SDL2
+            m
+    )
 endif ()
 
 if (TBSPRPG_WIN64)
     target_include_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/win64/include/SDL2)
     target_link_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/win64/lib)
-    target_link_libraries(tbsprpg_sdl SDL2main)
-
+    target_link_libraries(tbsprpg_sdl
+            utilities
+            SDL2
+            SDL2main
+    )
     add_custom_command(TARGET tbsprpg_sdl POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${PROJECT_SOURCE_DIR}/lib/win64/bin/SDL2.dll"
             $<TARGET_FILE_DIR:tbsprpg_sdl>)
 endif ()
-
-target_link_libraries(tbsprpg_sdl
-        utilities
-        SDL2
-)
 
 add_subdirectory(google_tests)
 
