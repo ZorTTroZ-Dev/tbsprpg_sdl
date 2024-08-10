@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <SDL.h>
+#include <stdio.h>
 
 int main(int argc, char *argv[])
 {
@@ -14,7 +15,13 @@ int main(int argc, char *argv[])
 
 	inicfg_open();
 
-	SDL_Window *window = NULL;
+	//Initialize SDL
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		printf("SDL could not initialize! SDL_Error: %s\n",
+		       SDL_GetError());
+	}
+
+	SDL_Quit();
 
 	inicfg_close();
 
