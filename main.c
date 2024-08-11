@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 		       SDL_GetError());
 	} else {
 		//Create window
-		window = SDL_CreateWindow("SDL Tutorial",
+		window = SDL_CreateWindow("tbsprpg sdl",
 					  SDL_WINDOWPOS_UNDEFINED,
 					  SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
 					  SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
