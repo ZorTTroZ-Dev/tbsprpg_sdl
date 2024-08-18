@@ -95,4 +95,143 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
 	return FUNC_SUCCESS;
 }
 
+static DWORD timespec_to_ms(const struct timespec *abstime)
+{
+	if (abstime == NULL)
+		return INFINITE;
+
+	DWORD t = ((abstime->tv_sec - time(NULL)) * 1000) + (abstime->tv_nsec / 1000000);
+	return t;
+}
+
+int pthread_cond_init(thread_cond_t *cond, pthread_condattr_t *attr)
+{
+	(void)attr;
+	if (cond == NULL)
+		return FUNC_FAILURE;
+	InitializeConditionVariable(cond);
+	return FUNC_SUCCESS;
+}
+
+int pthread_cond_destroy(thread_cond_t *cond)
+{
+	/* Windows does not have a destroy for conditionals */
+	(void)cond;
+	return FUNC_SUCCESS;
+}
+
+int pthread_cond_wait(thread_cond_t *cond, pthread_mutex_t *mutex)
+{
+	if (cond == NULL || mutex == NULL)
+		return FUNC_FAILURE;
+	return pthread_cond_timedwait(cond, mutex, NULL);
+}
+
+int pthread_cond_timedwait(thread_cond_t *cond, pthread_mutex_t *mutex,
+	const struct timespec *abstime)
+{
+	if (cond == NULL || mutex == NULL)
+		return FUNC_FAILURE;
+	if (!SleepConditionVariableCS(cond, mutex, timespec_to_ms(abstime)))
+		return FUNC_FAILURE;
+	return FUNC_SUCCESS;
+}
+
+int pthread_cond_signal(thread_cond_t *cond)
+{
+	if (cond == NULL)
+		return FUNC_FAILURE;
+	WakeConditionVariable(cond);
+	return FUNC_SUCCESS;
+}
+
+int pthread_cond_broadcast(thread_cond_t *cond)
+{
+	if (cond == NULL)
+		return FUNC_FAILURE;
+	WakeAllConditionVariable(cond);
+	return FUNC_SUCCESS;
+}
+
+int pthread_rwlock_init(pthread_rwlock_t *rwlock, const pthread_rwlockattr_t *attr)
+{
+	(void)attr;
+	if (rwlock == NULL)
+		return FUNC_FAILURE;
+	InitializeSRWLock(&(rwlock->lock));
+	rwlock->exclusive = false;
+	return FUNC_SUCCESS;
+}
+
+int pthread_rwlock_destroy(pthread_rwlock_t *rwlock)
+{
+	(void)rwlock;
+	return FUNC_SUCCESS;
+}
+
+int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock)
+{
+	if (rwlock == NULL)
+		return FUNC_FAILURE;
+	AcquireSRWLockShared(&(rwlock->lock));
+	return FUNC_SUCCESS;
+}
+
+int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock)
+{
+	if (rwlock == NULL)
+		return FUNC_FAILURE;
+	return !TryAcquireSRWLockShared(&(rwlock->lock));
+}
+
+int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock)
+{
+	if (rwlock == NULL)
+		return FUNC_FAILURE;
+	AcquireSRWLockExclusive(&(rwlock->lock));
+	rwlock->exclusive = true;
+	return FUNC_SUCCESS;
+}
+
+int pthread_rwlock_trywrlock(pthread_rwlock_t  *rwlock)
+{
+	if (rwlock == NULL)
+		return 1;
+
+	BOOLEAN ret = TryAcquireSRWLockExclusive(&(rwlock->lock));
+	if (ret)
+		rwlock->exclusive = true;
+	return ret;
+}
+
+int pthread_rwlock_unlock(pthread_rwlock_t *rwlock)
+{
+	if (rwlock == NULL)
+		return FUNC_FAILURE;
+
+	if (rwlock->exclusive) {
+		rwlock->exclusive = false;
+		ReleaseSRWLockExclusive(&(rwlock->lock));
+	} else {
+		ReleaseSRWLockShared(&(rwlock->lock));
+	}
+	return FUNC_SUCCESS;
+}
+
+unsigned int threading_get_num_procs()
+{
+	SYSTEM_INFO sysinfo;
+
+	GetSystemInfo(&sysinfo);
+	return sysinfo.dwNumberOfProcessors;
+}
+
+#else
+
+#include <unistd.h>
+unsigned int pcthread_get_num_procs()
+{
+	return (unsigned int)sysconf(_SC_NPROCESSORS_ONLN);
+}
+
 #endif
