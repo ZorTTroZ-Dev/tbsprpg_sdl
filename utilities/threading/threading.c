@@ -100,7 +100,8 @@ static DWORD timespec_to_ms(const struct timespec *abstime)
 	if (abstime == NULL)
 		return INFINITE;
 
-	DWORD t = ((abstime->tv_sec - time(NULL)) * 1000) + (abstime->tv_nsec / 1000000);
+	DWORD t = ((abstime->tv_sec - time(NULL)) * 1000) +
+		  (abstime->tv_nsec / 1000000);
 	return t;
 }
 
@@ -128,7 +129,7 @@ int pthread_cond_wait(thread_cond_t *cond, pthread_mutex_t *mutex)
 }
 
 int pthread_cond_timedwait(thread_cond_t *cond, pthread_mutex_t *mutex,
-	const struct timespec *abstime)
+			   const struct timespec *abstime)
 {
 	if (cond == NULL || mutex == NULL)
 		return FUNC_FAILURE;
@@ -153,7 +154,8 @@ int pthread_cond_broadcast(thread_cond_t *cond)
 	return FUNC_SUCCESS;
 }
 
-int pthread_rwlock_init(pthread_rwlock_t *rwlock, const pthread_rwlockattr_t *attr)
+int pthread_rwlock_init(pthread_rwlock_t *rwlock,
+			const pthread_rwlockattr_t *attr)
 {
 	(void)attr;
 	if (rwlock == NULL)
@@ -193,7 +195,7 @@ int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock)
 	return FUNC_SUCCESS;
 }
 
-int pthread_rwlock_trywrlock(pthread_rwlock_t  *rwlock)
+int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock)
 {
 	if (rwlock == NULL)
 		return 1;
