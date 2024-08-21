@@ -26,17 +26,15 @@ static DWORD WINAPI win_thread_start(void *arg)
 	return FUNC_SUCCESS;
 }
 
-int pthread_create(pthread_t *thread, pthread_attr_t *attr,
+int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 		   void *(*start_routine)(void *), void *arg)
 {
-	win_thread_start_t *data;
-
 	(void)attr;
 
 	if (thread == NULL || start_routine == NULL)
 		return 1;
 
-	data = malloc(sizeof(*data));
+	win_thread_start_t *data = malloc(sizeof(*data));
 	data->start_routine = start_routine;
 	data->start_arg = arg;
 
@@ -60,7 +58,7 @@ int pthread_detach(pthread_t thread)
 	return FUNC_SUCCESS;
 }
 
-int pthread_mutex_init(pthread_mutex_t *mutex, pthread_mutexattr_t *attr)
+int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
 {
 	(void)attr;
 
@@ -105,7 +103,7 @@ static DWORD timespec_to_ms(const struct timespec *abstime)
 	return t;
 }
 
-int pthread_cond_init(thread_cond_t *cond, pthread_condattr_t *attr)
+int pthread_cond_init(thread_cond_t *cond, const pthread_condattr_t *attr)
 {
 	(void)attr;
 	if (cond == NULL)
@@ -114,7 +112,7 @@ int pthread_cond_init(thread_cond_t *cond, pthread_condattr_t *attr)
 	return FUNC_SUCCESS;
 }
 
-int pthread_cond_destroy(thread_cond_t *cond)
+int pthread_cond_destroy(const thread_cond_t *cond)
 {
 	/* Windows does not have a destroy for conditionals */
 	(void)cond;
@@ -165,7 +163,7 @@ int pthread_rwlock_init(pthread_rwlock_t *rwlock,
 	return FUNC_SUCCESS;
 }
 
-int pthread_rwlock_destroy(pthread_rwlock_t *rwlock)
+int pthread_rwlock_destroy(const pthread_rwlock_t *rwlock)
 {
 	(void)rwlock;
 	return FUNC_SUCCESS;
@@ -200,7 +198,7 @@ int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock)
 	if (rwlock == NULL)
 		return 1;
 
-	BOOLEAN ret = TryAcquireSRWLockExclusive(&(rwlock->lock));
+	const BOOLEAN ret = TryAcquireSRWLockExclusive(&(rwlock->lock));
 	if (ret)
 		rwlock->exclusive = true;
 	return ret;
@@ -231,7 +229,7 @@ unsigned int threading_get_num_procs()
 #else
 
 #include <unistd.h>
-unsigned int pcthread_get_num_procs()
+unsigned int threading_get_num_procs()
 {
 	return (unsigned int)sysconf(_SC_NPROCESSORS_ONLN);
 }
