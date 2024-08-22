@@ -30,15 +30,18 @@ add_library(utilities OBJECT
         utilities/strutils/strutils.c
         utilities/threading.h
         utilities/threading/threading.c
+        utilities/geometry.h
 )
 
 add_executable(tbsprpg_sdl
         main.c
-        utilities/defines.h
-        utilities/logger.h
         game.c
         game.h
-        utilities/threading.h
+        render/render.h
+        render/render.c
+        audio/audio.h
+        audio/audio.c
+        simulation/simulation.h
 )
 
 if (TBSPRPG_LINUX_AMD64)

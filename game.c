@@ -9,41 +9,17 @@
 
 #include <stdint.h>
 
-#define MAX_THREADS 4
-#define MIN_THREADS 2
+#define NUM_THREADS 4
 
 #define SIMULATION_THREAD 0
 #define RENDER_THREAD 1
 #define AUDIO_THREAD 2
-#define UTIL_THREAD 3
+#define INPUT_THREAD 3
 
-static pthread_t *threads;
+static pthread_t threads[NUM_THREADS];
 
-static int launch_threads(uint8_t num_threads)
+static int launch_threads()
 {
-	if (num_threads == 0) {
-		num_threads = threading_get_num_procs() - 1;
-	}
-	if (num_threads > MAX_THREADS)
-		num_threads = MAX_THREADS;
-	if (num_threads < MIN_THREADS)
-		num_threads = MIN_THREADS;
-
-	threads = calloc(num_threads, sizeof(pthread_t));
-	if (threads == NULL) {
-		return FUNC_FAILURE;
-	}
-
-	if (num_threads >= 2) { // create sim and renderer thread
-		// int created = pthread_create(&threads[RENDER_THREAD], NULL, )
-	}
-
-	if (num_threads >= 3) { // create audio thread
-	}
-
-	if (num_threads >= 4) { // create utility thread
-	}
-
 	return FUNC_SUCCESS;
 }
 
@@ -60,6 +36,6 @@ int game_start(struct game_cfg *cfg)
 	init_render(cfg);
 
 	// start threads
-	launch_threads(cfg->num_threads);
+	launch_threads();
 	return FUNC_SUCCESS;
 }
