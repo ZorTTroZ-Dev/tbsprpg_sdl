@@ -1,18 +1,18 @@
 /**
-* @file audio.c
+* @file input.c
 */
 
-#include "audio.h"
+#include "input.h"
 #include "../utilities/defines.h"
 
 #include <stddef.h>
 
-int audio_init(struct audio_cfg *cfg)
+int input_init(struct input_cfg *cfg)
 {
 	return FUNC_SUCCESS;
 }
 
-void *audio_thread(void *args)
+void *input_thread(void *args)
 {
 	return NULL;
 }

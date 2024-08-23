@@ -42,6 +42,9 @@ add_executable(tbsprpg_sdl
         audio/audio.h
         audio/audio.c
         simulation/simulation.h
+        input/input.h
+        simulation/simulation.c
+        input/input.c
 )
 
 if (TBSPRPG_LINUX_AMD64)

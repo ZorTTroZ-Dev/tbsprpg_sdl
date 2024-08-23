@@ -14,6 +14,9 @@
 
 struct game_cfg {
 	uint8_t render_fps;
+	uint8_t sim_cps;
+	uint8_t audio_cps;
+	uint8_t input_cps;
 };
 
 struct game {

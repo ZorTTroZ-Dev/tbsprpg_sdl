@@ -3,6 +3,9 @@
 #include "game.h"
 
 #include <stdint.h>
+// #include <SDL.h>
+// #include <stdio.h>
+// #include <stdlib.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -79,7 +82,6 @@ int main(int argc, char *argv[])
 	game_start(&gcfg);
 
 	//run_game(25);
-
 	// SDL_Window *window = NULL;
 	// SDL_Surface *screenSurface = NULL;
 	//

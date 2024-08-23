@@ -1,18 +1,18 @@
 /**
-* @file audio.c
+* @file simulation.c
 */
 
-#include "audio.h"
 #include "../utilities/defines.h"
+#include "simulation.h"
 
 #include <stddef.h>
 
-int audio_init(struct audio_cfg *cfg)
+int sim_init(struct sim_cfg *cfg)
 {
 	return FUNC_SUCCESS;
 }
 
-void *audio_thread(void *args)
+void *sim_thread(void *args)
 {
 	return NULL;
 }
