@@ -1,6 +1,6 @@
 #include "utilities/ini_config.h"
 #include "utilities/logger.h"
-#include "game.h"
+#include "game/game.h"
 
 #include <stdint.h>
 // #include <SDL.h>
@@ -78,7 +78,12 @@ int main(int argc, char *argv[])
 
 	inicfg_open();
 
+	char core[] = "sdl";
 	struct game_cfg gcfg;
+	gcfg.core = core;
+	gcfg.render_core = core;
+	gcfg.audio_core = core;
+	gcfg.input_core = core;
 	game_start(&gcfg);
 
 	//run_game(25);

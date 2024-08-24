@@ -35,8 +35,8 @@ add_library(utilities OBJECT
 
 add_executable(tbsprpg_sdl
         main.c
-        game.c
-        game.h
+        game/game.c
+        game/game.h
         render/render.h
         render/render.c
         audio/audio.h
@@ -45,6 +45,8 @@ add_executable(tbsprpg_sdl
         input/input.h
         simulation/simulation.c
         input/input.c
+        game/sdl/game_sdl.h
+        game/sdl/game_sdl.c
 )
 
 if (TBSPRPG_LINUX_AMD64)

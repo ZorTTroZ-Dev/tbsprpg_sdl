@@ -4,15 +4,16 @@
 
 #include "input.h"
 #include "../utilities/defines.h"
+#include "../utilities/logger.h"
 
-#include <stddef.h>
+#include <stdio.h>
 
 int input_init(struct input_cfg *cfg)
 {
 	return FUNC_SUCCESS;
 }
 
-void *input_thread(void *args)
+int handle_input()
 {
-	return NULL;
+	return FUNC_SUCCESS;
 }

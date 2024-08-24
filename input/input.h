@@ -12,6 +12,6 @@ struct input_cfg {
 };
 
 extern int input_init(struct input_cfg *cfg);
-extern void *input_thread(void *args);
+extern int handle_input();
 
 #endif //INPUT_H
