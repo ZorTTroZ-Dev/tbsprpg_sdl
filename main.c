@@ -2,34 +2,39 @@
 #include "utilities/logger.h"
 #include "game/game.h"
 
-#include <stdint.h>
-// #include <SDL.h>
-// #include <stdio.h>
-// #include <stdlib.h>
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
-#ifdef __linux__
-#include <time.h>
-#endif
+#include <stddef.h>
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
-#ifdef __linux__
-static struct timespec ts;
-#endif
-
-uint64_t get_tick_count()
+static int config_game(struct game_cfg *cfg)
 {
-#ifdef _WIN32
-	return GetTickCount64();
-#elif __linux__
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return ts.tv_nsec;
-#endif
+	inicfg_getstring("game", "core", &(cfg->core));
+	inicfg_getstring("input", "core", &(cfg->input_core));
+	inicfg_getstring("render", "core", &(cfg->render_core));
+	inicfg_getstring("audio", "core", &(cfg->audio_core));
+}
+
+int main(int argc, char *argv[])
+{
+	if (log_open(LOG_DEBUG) > 0) {
+		return 1;
+	}
+	log_write(LOG_TAG_INFO, "logger initialized");
+	log_write(LOG_TAG_INFO, "tbsprpg_sdl starting up");
+
+	inicfg_open();
+
+	struct game_cfg gcfg;
+	config_game(&gcfg);
+	game_start(&gcfg);
+
+	inicfg_close();
+
+	log_write(LOG_TAG_INFO, "tbsprpg_sdl shutting down");
+	log_close();
+	log_write(LOG_TAG_INFO, "logger destroyed");
+	return 0;
 }
 
 // int run_game(int simfps)
@@ -67,75 +72,3 @@ uint64_t get_tick_count()
 // 	}
 // 	// printf("%" PRIu64 "\n", get_tick_count());
 // }
-
-int main(int argc, char *argv[])
-{
-	if (log_open(LOG_DEBUG) > 0) {
-		return 1;
-	}
-	log_write(LOG_TAG_INFO, "logger initialized");
-	log_write(LOG_TAG_INFO, "tbsprpg_sdl starting up");
-
-	inicfg_open();
-
-	char core[] = "sdl";
-	struct game_cfg gcfg;
-	gcfg.core = core;
-	gcfg.render_core = core;
-	gcfg.audio_core = core;
-	gcfg.input_core = core;
-	game_start(&gcfg);
-
-	//run_game(25);
-	// SDL_Window *window = NULL;
-	// SDL_Surface *screenSurface = NULL;
-	//
-	// //Initialize SDL
-	// if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-	// 	printf("SDL could not initialize! SDL_Error: %s\n",
-	// 	       SDL_GetError());
-	// } else {
-	// 	//Create window
-	// 	window = SDL_CreateWindow("tbsprpg sdl",
-	// 				  SDL_WINDOWPOS_UNDEFINED,
-	// 				  SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
-	// 				  SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-	// 	if (window == NULL) {
-	// 		printf("Window could not be created! SDL_Error: %s\n",
-	// 		       SDL_GetError());
-	// 	} else {
-	// 		//Get window surface
-	// 		screenSurface = SDL_GetWindowSurface(window);
-	//
-	// 		//Fill the surface white
-	// 		SDL_FillRect(screenSurface, NULL,
-	// 			     SDL_MapRGB(screenSurface->format, 0xFF,
-	// 					0xFF, 0xFF));
-	//
-	// 		//Update the surface
-	// 		SDL_UpdateWindowSurface(window);
-	//
-	// 		//Hack to get window to stay up
-	// 		SDL_Event e;
-	// 		bool quit = false;
-	// 		while (quit == false) {
-	// 			while (SDL_PollEvent(&e)) {
-	// 				if (e.type == SDL_QUIT)
-	// 					quit = true;
-	// 			}
-	// 		}
-	// 	}
-	// }
-	//
-	// //Destroy window
-	// SDL_DestroyWindow(window);
-	//
-	// SDL_Quit();
-
-	inicfg_close();
-
-	log_write(LOG_TAG_INFO, "tbsprpg_sdl shutting down");
-	log_close();
-	log_write(LOG_TAG_INFO, "logger destroyed");
-	return 0;
-}

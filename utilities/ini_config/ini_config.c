@@ -340,15 +340,15 @@ struct inicfg_setting *find_setting(const char *section, const char *key)
  *	during gameplay.
  * @param section name of section to find key in
  * @param key name of key to get value for
- * @param value pointer to char that will contain the requested value
+ * @param value pointer to char pointer that will contain the requested value
  *	will be set to NULL if not found
  */
-void inicfg_getstring(const char *section, const char *key, char *value)
+void inicfg_getstring(const char *section, const char *key, char **value)
 {
-	value = NULL;
+	*value = NULL;
 	struct inicfg_setting *setting = find_setting(section, key);
 	if (setting != NULL)
-		value = setting->trimmed_value;
+		*value = setting->trimmed_value;
 }
 
 /**

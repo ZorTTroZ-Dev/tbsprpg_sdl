@@ -94,6 +94,7 @@ static int quit_game(const struct game_cfg *cfg)
 	return FUNC_FAILURE;
 }
 
+// TODO: Error checking
 int game_start(const struct game_cfg *cfg)
 {
 	// initialize the game
@@ -121,7 +122,7 @@ int game_start(const struct game_cfg *cfg)
 	pthread_join(threads[AUDIO_THREAD], NULL);
 	log_write(LOG_TAG_INFO, "threads closed");
 
-	log_write(LOG_TAG_INFO, "quiting game");
+	log_write(LOG_TAG_INFO, "quitting game");
 	quit_game(cfg);
 
 	return FUNC_SUCCESS;

@@ -31,6 +31,8 @@ add_library(utilities OBJECT
         utilities/threading.h
         utilities/threading/threading.c
         utilities/geometry.h
+        utilities/timing.h
+        utilities/timing/timing.c
 )
 
 add_executable(tbsprpg_sdl

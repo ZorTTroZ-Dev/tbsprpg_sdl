@@ -8,7 +8,8 @@
 #define INICFG_CONFIG_FILE_PATH "config.ini"
 
 extern int inicfg_open();
-extern void inicfg_getstring(const char *section, const char *key, char *value);
+extern void inicfg_getstring(const char *section, const char *key,
+			     char **value);
 extern void inicfg_getint(const char *section, const char *key, int *value);
 extern void inicfg_close();
 
