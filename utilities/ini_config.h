@@ -14,7 +14,7 @@ extern void inicfg_getstring(const char *section, const char *key,
 			     char **value);
 extern void inicfg_getint(const char *section, const char *key, int *value);
 extern void inicfg_getuint8_t(const char *section, const char *key,
-			    uint8_t *value);
+			      uint8_t *value);
 extern void inicfg_close();
 
 #endif //INI_CONFIG_H
