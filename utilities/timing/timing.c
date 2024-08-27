@@ -13,6 +13,10 @@
 #include <time.h>
 #endif
 
+/**
+ * @brief get time in ms since system boot
+ * @return time in ms since system startup
+ */
 uint64_t timing_get_time()
 {
 #ifdef _WIN32

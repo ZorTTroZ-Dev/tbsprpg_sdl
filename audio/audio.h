@@ -6,10 +6,17 @@
 #define AUDIO_H
 #include <stdint.h>
 
+/**
+ * @struct audio_cfg
+ * @brief audio subsystem configuration object
+ */
 struct audio_cfg {
-	uint8_t tgt_cps; // cycles per second
+	uint8_t tgt_cps; //!< target cycles per second of audio thread
 };
 
+/**
+ * @brief representation of an audio track
+ */
 struct audio_track {
 	uint64_t volume;
 };

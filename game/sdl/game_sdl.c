@@ -9,6 +9,11 @@
 #include <SDL.h>
 #include <string.h>
 
+/**
+ * @brief initialze required SDL libraries
+ * @param cfg pointer to struct game_cfg
+ * @return 0 on success 1 on failure
+ */
 int game_sdl_init(const struct game_cfg *cfg)
 {
 	uint32_t subsystems = 0;
@@ -26,6 +31,10 @@ int game_sdl_init(const struct game_cfg *cfg)
 	return FUNC_SUCCESS;
 }
 
+/**
+ * @brief close SDL libraries
+ * @return 0 on success 1 on failure
+ */
 int game_sdl_quit()
 {
 	SDL_Quit();
