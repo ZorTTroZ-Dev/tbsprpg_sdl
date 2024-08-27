@@ -20,6 +20,7 @@ struct sim_world {
 };
 
 extern int sim_init(struct sim_cfg *cfg);
+extern void sim_close();
 extern void *sim_thread(void *args);
 
 #endif //SIMULATION_H

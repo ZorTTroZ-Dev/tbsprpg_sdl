@@ -7,7 +7,7 @@
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
-static int config_game(struct game_cfg *cfg)
+static void config_game(struct game_cfg *cfg)
 {
 	inicfg_getstring("game", "core", &(cfg->core));
 	inicfg_getstring("input", "core", &(cfg->input_core));

@@ -13,6 +13,10 @@ int input_init(struct input_cfg *cfg)
 	return FUNC_SUCCESS;
 }
 
+void input_close()
+{
+}
+
 int handle_input()
 {
 	return FUNC_SUCCESS;

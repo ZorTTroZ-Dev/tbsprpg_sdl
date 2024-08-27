@@ -15,6 +15,7 @@ struct audio_track {
 };
 
 extern int audio_init(struct audio_cfg *cfg);
+extern void audio_close();
 extern void *audio_thread(void *args);
 
 #endif //AUDIO_H

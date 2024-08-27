@@ -23,6 +23,7 @@ struct render_frame {
 };
 
 extern int render_init(struct render_cfg *cfg);
+extern void render_close();
 extern void *render_thread(void *args);
 
 #endif //RENDER_H
