@@ -42,5 +42,6 @@ int input_sdl_handle_input(struct game *game, int tgt_cps)
 			cycle = 0;
 		}
 	}
+
 	return FUNC_SUCCESS;
 }
