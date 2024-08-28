@@ -16,6 +16,8 @@
 #include <time.h>
 #endif
 
+#include <math.h>
+
 /**
  * @brief get time in ms since system boot
  * @return time in ms since system startup
@@ -27,7 +29,7 @@ uint64_t timing_get_time()
 #elif __linux__
 	struct timespec ts;
 	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return ts.tv_nsec / 1000000; // convert nanoseconds to milliseconds
+	return ts.tv_sec * 1000 + round(ts.tv_nsec / 1000000); // convert nanoseconds to milliseconds
 #endif
 }
 
