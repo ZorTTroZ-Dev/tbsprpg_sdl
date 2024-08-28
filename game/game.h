@@ -12,8 +12,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define GAME_CORE_SDL "sdl"
-
 /**
  * @struct game_cfg
  * @brief Configuration settings for a game

@@ -49,6 +49,8 @@ add_executable(tbsprpg_sdl
         input/input.c
         game/sdl/game_sdl.h
         game/sdl/game_sdl.c
+        input/sdl/input_sdl.c
+        input/sdl/input_sdl.h
 )
 
 if (TBSPRPG_LINUX_AMD64)

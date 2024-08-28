@@ -10,6 +10,7 @@
 #include "sdl/game_sdl.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define NUM_THREADS 3
@@ -19,6 +20,8 @@
 #define AUDIO_THREAD 2
 
 static pthread_t threads[NUM_THREADS]; //!< array of threads in game
+
+struct game *game; //!< game state
 
 /**
  * @brief Launch all subsystem threads and call their appropriate start methods
@@ -97,6 +100,7 @@ static int init_input(const struct game_cfg *cfg)
 {
 	struct input_cfg icfg;
 	icfg.tgt_cps = cfg->input_cps;
+	icfg.core = cfg->input_core;
 	return input_init(&icfg);
 }
 
@@ -107,7 +111,7 @@ static int init_input(const struct game_cfg *cfg)
  */
 static bool is_sdl(const char *core)
 {
-	return strcmp(core, GAME_CORE_SDL) == 0;
+	return strcmp(core, SDL_LIBRARY_CORE) == 0;
 }
 
 /**
@@ -117,6 +121,11 @@ static bool is_sdl(const char *core)
  */
 static int init_game(const struct game_cfg *cfg)
 {
+	game = malloc(sizeof(struct game));
+	if (game == NULL) {
+		return FUNC_FAILURE;
+	}
+	game->shutdown = false;
 	if (is_sdl(cfg->core)) {
 		return game_sdl_init(cfg);
 	}
@@ -130,6 +139,8 @@ static int init_game(const struct game_cfg *cfg)
  */
 static int quit_game(const struct game_cfg *cfg)
 {
+	if (game != NULL)
+		free(game);
 	if (is_sdl(cfg->core)) {
 		return game_sdl_quit();
 	}
@@ -223,6 +234,8 @@ int game_start(const struct game_cfg *cfg)
 	log_write(LOG_TAG_INFO, "initializing game");
 	if (init_game(cfg) != FUNC_SUCCESS) {
 		log_write(LOG_TAG_ERR, "game initialization failed");
+		if (game != NULL)
+			free(game);
 		return FUNC_FAILURE;
 	}
 
@@ -240,6 +253,7 @@ int game_start(const struct game_cfg *cfg)
 	}
 
 	// start handling events
+	input_handle_input(game);
 
 	join_threads();
 	log_write(LOG_TAG_INFO, "threads closed");
