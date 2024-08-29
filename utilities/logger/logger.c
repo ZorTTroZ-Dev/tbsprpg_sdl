@@ -4,16 +4,16 @@
 
 #ifdef _WIN32
 #define _CRT_SECURE_NO_DEPRECATE
-#define LOG_FORMAT_STRING "%lld [%s]: %s\n"
-#else
-#define LOG_FORMAT_STRING "%ld [%s]: %s\n"
 #endif
 
 #include "../logger.h"
 #include "../defines.h"
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <time.h>
+
+#define LOG_FORMAT_STRING "%" PRIu64 "[%s]: %s\n"
 
 static int log_profile;
 static FILE *log_file;

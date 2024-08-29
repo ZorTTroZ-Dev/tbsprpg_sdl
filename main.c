@@ -1,13 +1,20 @@
 #include "utilities/ini_config.h"
 #include "utilities/logger.h"
+#include "game/game.h"
 
 #include <stddef.h>
-#include <SDL.h>
-#include <stdbool.h>
-#include <stdio.h>
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+static void config_game(struct game_cfg *cfg)
+{
+	inicfg_getstring("game", "core", &(cfg->core));
+	inicfg_getstring("input", "core", &(cfg->input_core));
+	inicfg_getuint8_t("input", "cps", &(cfg->input_cps));
+	inicfg_getstring("render", "core", &(cfg->render_core));
+	inicfg_getuint8_t("render", "fps", &(cfg->render_fps));
+	inicfg_getstring("audio", "core", &(cfg->audio_core));
+	inicfg_getuint8_t("audio", "cps", &(cfg->audio_cps));
+	inicfg_getuint8_t("simulation", "cps", &(cfg->sim_cps));
+}
 
 int main(int argc, char *argv[])
 {
@@ -19,50 +26,9 @@ int main(int argc, char *argv[])
 
 	inicfg_open();
 
-	SDL_Window *window = NULL;
-	SDL_Surface *screenSurface = NULL;
-
-	//Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		printf("SDL could not initialize! SDL_Error: %s\n",
-		       SDL_GetError());
-	} else {
-		//Create window
-		window = SDL_CreateWindow("tbsprpg sdl",
-					  SDL_WINDOWPOS_UNDEFINED,
-					  SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
-					  SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-		if (window == NULL) {
-			printf("Window could not be created! SDL_Error: %s\n",
-			       SDL_GetError());
-		} else {
-			//Get window surface
-			screenSurface = SDL_GetWindowSurface(window);
-
-			//Fill the surface white
-			SDL_FillRect(screenSurface, NULL,
-				     SDL_MapRGB(screenSurface->format, 0xFF,
-						0xFF, 0xFF));
-
-			//Update the surface
-			SDL_UpdateWindowSurface(window);
-
-			//Hack to get window to stay up
-			SDL_Event e;
-			bool quit = false;
-			while (quit == false) {
-				while (SDL_PollEvent(&e)) {
-					if (e.type == SDL_QUIT)
-						quit = true;
-				}
-			}
-		}
-	}
-
-	//Destroy window
-	SDL_DestroyWindow(window);
-
-	SDL_Quit();
+	struct game_cfg gcfg;
+	config_game(&gcfg);
+	game_start(&gcfg);
 
 	inicfg_close();
 

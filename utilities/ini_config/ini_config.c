@@ -340,15 +340,15 @@ struct inicfg_setting *find_setting(const char *section, const char *key)
  *	during gameplay.
  * @param section name of section to find key in
  * @param key name of key to get value for
- * @param value pointer to char that will contain the requested value
+ * @param value pointer to char pointer that will contain the requested value
  *	will be set to NULL if not found
  */
-void inicfg_getstring(const char *section, const char *key, char *value)
+void inicfg_getstring(const char *section, const char *key, char **value)
 {
-	value = NULL;
+	*value = NULL;
 	struct inicfg_setting *setting = find_setting(section, key);
 	if (setting != NULL)
-		value = setting->trimmed_value;
+		*value = setting->trimmed_value;
 }
 
 /**
@@ -364,6 +364,26 @@ void inicfg_getstring(const char *section, const char *key, char *value)
  *	will be set to NULL if not found
  */
 void inicfg_getint(const char *section, const char *key, int *value)
+{
+	*value = 0;
+	struct inicfg_setting *setting = find_setting(section, key);
+	if (setting != NULL)
+		*value = atoi(setting->trimmed_value);
+}
+
+/**
+* @brief Retrieve the value for the given key in the given section
+ *	will point the value parameter to the key value, do not free
+ *	the given value pointer. Uses atoi so if the setting isn't an integer
+ *	or its bigger than an int the value will point to 0.
+ * @note This implementation is naive you may not want to retreive an ini setting
+ *	during gameplay.
+ * @param section name of section to find key in
+ * @param key name of key to get value for
+ * @param value pointer to uint8_t that will contain requested value
+ *	will be set to NULL if not found
+ */
+void inicfg_getuint8_t(const char *section, const char *key, uint8_t *value)
 {
 	*value = 0;
 	struct inicfg_setting *setting = find_setting(section, key);

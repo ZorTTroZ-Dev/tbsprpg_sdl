@@ -28,12 +28,31 @@ add_library(utilities OBJECT
         utilities/logger/logger.c
         utilities/strutils.h
         utilities/strutils/strutils.c
+        utilities/threading.h
+        utilities/threading/threading.c
+        utilities/geometry.h
+        utilities/timing.h
+        utilities/timing/timing.c
 )
 
 add_executable(tbsprpg_sdl
         main.c
-        utilities/defines.h
-        utilities/logger.h
+        game/game.c
+        game/game.h
+        render/render.h
+        render/render.c
+        audio/audio.h
+        audio/audio.c
+        simulation/simulation.h
+        input/input.h
+        simulation/simulation.c
+        input/input.c
+        game/sdl/game_sdl.h
+        game/sdl/game_sdl.c
+        input/sdl/input_sdl.c
+        input/sdl/input_sdl.h
+        render/sdl/render_sdl.h
+        render/sdl/render_sdl.c
 )
 
 if (TBSPRPG_LINUX_AMD64)
