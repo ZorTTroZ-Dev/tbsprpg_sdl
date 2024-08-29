@@ -29,7 +29,7 @@ int input_sdl_handle_input(struct game *game, int tgt_cps)
 				game->shutdown = true;
 		}
 		const uint64_t end = timing_get_time();
-		const uint64_t sleep = mspercycle - (end - start);
+		const int64_t sleep = mspercycle - (end - start);
 		if (sleep > 0) {
 			timing_msleep(sleep);
 		}
