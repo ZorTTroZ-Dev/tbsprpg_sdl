@@ -7,6 +7,7 @@
 #include "../../utilities/timing.h"
 
 #include <SDL.h>
+#include <stdio.h>
 
 /**
  * @brief SDL version of input handling loop
@@ -42,6 +43,7 @@ int input_sdl_handle_input(struct game *game, int tgt_cps)
 			cycle = 0;
 		}
 	}
+	printf("%f\n", cps);
 
 	return FUNC_SUCCESS;
 }

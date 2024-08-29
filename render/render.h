@@ -13,6 +13,7 @@
  */
 struct render_cfg {
 	uint8_t tgt_fps; //!< target render frames per second
+	char *core; //!< core library to use for rendering
 };
 
 /**

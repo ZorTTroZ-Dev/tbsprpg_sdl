@@ -44,6 +44,7 @@ void input_close()
  */
 int input_handle_input(struct game *game)
 {
+	// TODO: Remove while loop to here
 	switch (core_type) {
 	case UNKNOWN_CORE:
 		log_write(LOG_TAG_ERR, "input core not properly set");
