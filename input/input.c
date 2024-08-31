@@ -9,6 +9,7 @@
 #include "../utilities/timing.h"
 
 #include <string.h>
+#include <stdio.h>
 
 #define UNKNOWN_CORE -1
 #define SDL_CORE 0
@@ -48,7 +49,7 @@ int input_handle_input(struct game *game)
 	uint32_t cps_time = timing_get_time();
 	uint32_t cycle = 0;
 	float cps = 0;
-	const uint32_t mspercycle = 1000 / tgt_cps;
+	const float mspercycle = (float)1000 / tgt_cps;
 	while (!game->shutdown) {
 		const uint64_t start = timing_get_time();
 
@@ -75,10 +76,11 @@ int input_handle_input(struct game *game)
 		cycle++;
 		if (cycle == 100) {
 			const uint32_t cps_end_time = timing_get_time();
-			cps = cycle / (float)((cps_end_time - cps_time) / 1000);
+			cps = cycle / ((cps_end_time - cps_time) / (float)1000);
 			cps_time = cps_end_time;
 			cycle = 0;
 		}
 	}
+	printf("INPUT CPS: %f\n", cps);
 	return FUNC_SUCCESS;
 }
