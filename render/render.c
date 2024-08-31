@@ -82,7 +82,7 @@ void *render_thread(void *args)
 		cycle++;
 		if (cycle == 100) {
 			const uint32_t fps_end_time = timing_get_time();
-			fps = cycle / ((fps_end_time - fps_time) / (float) 1000);
+			fps = cycle / ((fps_end_time - fps_time) / (float)1000);
 			fps_time = fps_end_time;
 			cycle = 0;
 		}
