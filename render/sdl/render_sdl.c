@@ -4,7 +4,7 @@
 
 #include "render_sdl.h"
 #include "../../utilities/defines.h"
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <stdio.h>
 
 static SDL_Window *window = NULL;

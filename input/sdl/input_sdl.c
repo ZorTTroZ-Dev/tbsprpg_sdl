@@ -5,7 +5,7 @@
 #include "../../game/game.h"
 #include "../../utilities/defines.h"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 static SDL_Event event;
 
