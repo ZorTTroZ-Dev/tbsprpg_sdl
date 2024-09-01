@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 
 #define UNKNOWN_CORE -1
 #define SDL_CORE 0
@@ -70,7 +69,19 @@ void *render_thread(void *args)
 		const uint64_t start = timing_get_time();
 
 		// render frame
-		//printf("render frame\n");
+		switch (core_type) {
+		case UNKNOWN_CORE:
+			log_write(LOG_TAG_ERR, "render core not properly set");
+			game->shutdown = true;
+			break;
+		case SDL_CORE:
+			render_sdl_frame(NULL, 0.0f);
+			break;
+		default:
+			log_write(LOG_TAG_ERR, "unknown render core");
+			game->shutdown = true;
+			break;
+		}
 
 		const uint64_t end = timing_get_time();
 		const int64_t sleep = mspercycle - (end - start);

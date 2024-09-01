@@ -9,6 +9,6 @@
 
 extern int render_sdl_init(struct render_cfg *cfg);
 extern void render_sdl_close();
-extern int render_sdl_frame();
+extern int render_sdl_frame(struct render_frame *frame, float interpolation);
 
 #endif //RENDER_SDL_H
