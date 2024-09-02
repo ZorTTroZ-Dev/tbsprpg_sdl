@@ -61,7 +61,6 @@ if (TBSPRPG_LINUX_AMD64)
             utilities
             ${SDL2_LIBRARIES}
             m
-            csfml-graphics
     )
 endif ()
 
@@ -72,15 +71,10 @@ if (TBSPRPG_WIN64)
             utilities
             SDL2
             SDL2main
-            csfml-graphics
     )
     add_custom_command(TARGET tbsprpg_sdl POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${PROJECT_SOURCE_DIR}/lib/win64/bin/SDL2.dll"
-            $<TARGET_FILE_DIR:tbsprpg_sdl>)
-    add_custom_command(TARGET tbsprpg_sdl POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${PROJECT_SOURCE_DIR}/lib/win64/bin/csfml-graphics-2.dll"
             $<TARGET_FILE_DIR:tbsprpg_sdl>)
 endif ()
 
