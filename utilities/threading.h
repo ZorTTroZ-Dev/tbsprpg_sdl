@@ -43,7 +43,7 @@ int pthread_mutex_lock(pthread_mutex_t *mutex);
 int pthread_mutex_unlock(pthread_mutex_t *mutex);
 
 int pthread_cond_init(thread_cond_t *cond, pthread_condattr_t *attr);
-int pthread_cond_destroy(thread_cond_t *cond);
+int pthread_cond_destroy(const thread_cond_t *cond);
 int pthread_cond_wait(thread_cond_t *cond, pthread_mutex_t *mutex);
 int pthread_cond_timedwait(thread_cond_t *cond, pthread_mutex_t *mutex,
 			   const struct timespec *abstime);
@@ -52,7 +52,7 @@ int pthread_cond_broadcast(thread_cond_t *cond);
 
 int pthread_rwlock_init(pthread_rwlock_t *rwlock,
 			const pthread_rwlockattr_t *attr);
-int pthread_rwlock_destroy(pthread_rwlock_t *rwlock);
+int pthread_rwlock_destroy(const pthread_rwlock_t *rwlock);
 int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock);
 int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock);
 int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock);

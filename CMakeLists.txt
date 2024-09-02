@@ -7,11 +7,12 @@ option(TBSPRPG_LINUX_AMD64 "Building for Linux AMD64" OFF)
 option(TBSPRPG_WIN64 "Building for Windows 64" OFF)
 
 if (TBSPRPG_LINUX_AMD64)
-    include_directories(${CMAKE_SOURCE_DIR}/lib/linux_amd64/include/SDL2)
+    find_package(SDL2 REQUIRED)
+    include_directories(${SDL2_INCLUDE_DIRS})
 endif ()
 
 if (TBSPRPG_WIN64)
-    include_directories(${CMAKE_SOURCE_DIR}/lib/win64/include/SDL2)
+    include_directories(${CMAKE_SOURCE_DIR}/lib/win64/include)
 endif ()
 
 add_library(utilities OBJECT
@@ -56,27 +57,30 @@ add_executable(tbsprpg_sdl
 )
 
 if (TBSPRPG_LINUX_AMD64)
-    include_directories(${CMAKE_SOURCE_DIR}/lib/linux_amd64/include)
-    target_include_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/linux_amd64/include/SDL2)
-    target_link_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/linux_amd64/lib)
     target_link_libraries(tbsprpg_sdl
             utilities
-            SDL2
+            ${SDL2_LIBRARIES}
             m
+            csfml-graphics
     )
 endif ()
 
 if (TBSPRPG_WIN64)
-    target_include_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/win64/include/SDL2)
+    target_include_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/win64/include)
     target_link_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/win64/lib)
     target_link_libraries(tbsprpg_sdl
             utilities
             SDL2
             SDL2main
+            csfml-graphics
     )
     add_custom_command(TARGET tbsprpg_sdl POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${PROJECT_SOURCE_DIR}/lib/win64/bin/SDL2.dll"
+            $<TARGET_FILE_DIR:tbsprpg_sdl>)
+    add_custom_command(TARGET tbsprpg_sdl POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${PROJECT_SOURCE_DIR}/lib/win64/bin/csfml-graphics-2.dll"
             $<TARGET_FILE_DIR:tbsprpg_sdl>)
 endif ()
 

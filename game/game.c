@@ -31,7 +31,7 @@ static int launch_threads()
 {
 	log_write(LOG_TAG_INFO, "launching simulation thread");
 	int rval = pthread_create(&threads[SIMULATION_THREAD], NULL, sim_thread,
-				  NULL);
+				  game);
 	if (rval != FUNC_SUCCESS) {
 		log_write(LOG_TAG_ERR, "failed to create simulation thread");
 		return FUNC_FAILURE;
@@ -39,14 +39,14 @@ static int launch_threads()
 
 	log_write(LOG_TAG_INFO, "launching render thread");
 	rval = pthread_create(&threads[RENDER_THREAD], NULL, render_thread,
-			      NULL);
+			      game);
 	if (rval != FUNC_SUCCESS) {
 		log_write(LOG_TAG_ERR, "failed to create render thread");
 		return FUNC_FAILURE;
 	}
 
 	log_write(LOG_TAG_INFO, "launching audio thread");
-	rval = pthread_create(&threads[AUDIO_THREAD], NULL, audio_thread, NULL);
+	rval = pthread_create(&threads[AUDIO_THREAD], NULL, audio_thread, game);
 	if (rval != FUNC_SUCCESS) {
 		log_write(LOG_TAG_ERR, "failed to create audio thread");
 		return FUNC_FAILURE;
