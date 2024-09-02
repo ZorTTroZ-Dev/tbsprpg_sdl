@@ -8,8 +8,8 @@
 #include "../input/input.h"
 #include "../utilities/logger.h"
 #include "sdl/game_sdl.h"
+#include "sfml/game_sfml.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -65,7 +65,7 @@ static int init_render(const struct game_cfg *cfg)
 	struct render_cfg rcfg;
 	rcfg.tgt_fps = cfg->render_fps;
 	rcfg.core = cfg->render_core;
-	return render_init(&rcfg);
+	return render_init(&rcfg, &game->renderer);
 }
 
 /**
@@ -116,6 +116,16 @@ static bool is_sdl(const char *core)
 }
 
 /**
+ * @brief check if the given core is SFML
+ * @param core pointer to char name of core
+ * @return results of strcmp to see if core is SFML
+ */
+static bool is_sfml(const char *core)
+{
+	return strcmp(core, SFML_LIBRARY_CORE) == 0;
+}
+
+/**
  * @brief initialize the game
  * @param cfg pointer to struct game_cfg
  * @return 0 on success 1 on failure
@@ -129,6 +139,9 @@ static int init_game(const struct game_cfg *cfg)
 	game->shutdown = false;
 	if (is_sdl(cfg->core)) {
 		return game_sdl_init(cfg);
+	}
+	if (is_sfml(cfg->core)) {
+		return game_sfml_init(cfg);
 	}
 	return FUNC_FAILURE;
 }
@@ -144,6 +157,9 @@ static int quit_game(const struct game_cfg *cfg)
 		free(game);
 	if (is_sdl(cfg->core)) {
 		return game_sdl_quit();
+	}
+	if (is_sfml(cfg->core)) {
+		return game_sfml_quit();
 	}
 	return FUNC_FAILURE;
 }
@@ -190,8 +206,9 @@ static void close_subsystems()
 }
 
 /**
- * @brief initialize all of the subsystems
+ * @brief initialize all the subsystems
  * @param cfg pointer to struct game_cfg
+ * @param game pointer to struct game
  * @return 0 on success 1 on failure
  */
 static int init_subsystems(const struct game_cfg *cfg)

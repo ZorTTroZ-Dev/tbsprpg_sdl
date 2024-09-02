@@ -13,7 +13,7 @@ static SDL_Renderer *renderer = NULL;
 int render_sdl_init(struct render_cfg *cfg)
 {
 	window = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED,
-				  SDL_WINDOWPOS_UNDEFINED, 640, 480,
+				  SDL_WINDOWPOS_UNDEFINED, 800, 600,
 				  SDL_WINDOW_SHOWN);
 	if (window == NULL) {
 		printf("Window could not be created! SDL Error: %s\n",

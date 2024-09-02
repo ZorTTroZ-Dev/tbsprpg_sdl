@@ -4,6 +4,7 @@
 
 #include "render.h"
 #include "sdl/render_sdl.h"
+#include "sfml/render_sfml.h"
 #include "../utilities/defines.h"
 #include "../utilities/logger.h"
 #include "../game/game.h"
@@ -14,6 +15,7 @@
 
 #define UNKNOWN_CORE -1
 #define SDL_CORE 0
+#define SFML_CORE 1
 
 static int core_type;
 static int tgt_fps;
@@ -21,19 +23,25 @@ static int tgt_fps;
 /**
  * @brief initialize render subsystem
  * @param cfg pointer to struct render_cfg
+ * @param game pointer to struct game
  * @return 0 on success 1 on failure
  */
-int render_init(struct render_cfg *cfg)
+int render_init(struct render_cfg *cfg, struct render_renderer **renderer)
 {
 	core_type = UNKNOWN_CORE;
 	if (strcmp(cfg->core, SDL_LIBRARY_CORE) == 0) {
 		core_type = SDL_CORE;
+	}
+	if (strcmp(cfg->core, SFML_LIBRARY_CORE) == 0) {
+		core_type = SFML_CORE;
 	}
 	tgt_fps = cfg->tgt_fps;
 
 	switch (core_type) {
 	case SDL_CORE:
 		return render_sdl_init(cfg);
+	case SFML_CORE:
+		return render_sfml_init(cfg, renderer);
 	default:
 		return FUNC_FAILURE;
 	}
@@ -47,6 +55,9 @@ void render_close()
 	switch (core_type) {
 	case SDL_CORE:
 		render_sdl_close();
+		break;
+	case SFML_CORE:
+		render_sfml_close();
 		break;
 	default:
 		break;
@@ -76,6 +87,9 @@ void *render_thread(void *args)
 			break;
 		case SDL_CORE:
 			render_sdl_frame(NULL, 0.0f);
+			break;
+		case SFML_CORE:
+			render_sfml_frame(NULL, 0.0f);
 			break;
 		default:
 			log_write(LOG_TAG_ERR, "unknown render core");

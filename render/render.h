@@ -6,6 +6,7 @@
 #define RENDER_H
 #include <stdint.h>
 #include "../utilities/geometry.h"
+#include <SFML/Graphics.h>
 
 /**
  * @struct render_cfg
@@ -35,7 +36,16 @@ struct render_frame {
 	struct render_obj *objects; //!< objects to render
 };
 
-extern int render_init(struct render_cfg *cfg);
+/**
+ * @struct render_renderer
+ * @brief renderer for render system
+ */
+struct render_renderer {
+	sfRenderWindow *sfml_window; //!< sfml core window
+};
+
+extern int render_init(struct render_cfg *cfg,
+		       struct render_renderer **renderer);
 extern void render_close();
 extern void *render_thread(void *args);
 

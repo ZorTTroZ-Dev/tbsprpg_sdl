@@ -32,12 +32,15 @@ struct game_cfg {
  * @brief top-level game objects
  */
 struct game {
-	bool shutdown; //!< should threads shutdown
+	bool shutdown; //!< should the threads shutdown
 	struct render_frame *frames; //!< queue of frames to render
 	struct audio_track *tracks; //!< audio tracks queued for playback
 	struct sim_world *world; //!< state of game world
 	struct sim_object *
 		updated_objs; //!< objects that have been updated by input since the last frame was generated
+
+	// subsystem shared objects
+	struct render_renderer *renderer; //!< render subsystem renderer
 };
 
 extern int game_start(const struct game_cfg *cfg);

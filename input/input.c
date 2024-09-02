@@ -6,6 +6,7 @@
 #include "../utilities/defines.h"
 #include "../utilities/logger.h"
 #include "sdl/input_sdl.h"
+#include "sfml/input_sfml.h"
 #include "../utilities/timing.h"
 
 #include <string.h>
@@ -13,6 +14,7 @@
 
 #define UNKNOWN_CORE -1
 #define SDL_CORE 0
+#define SFML_CORE 1
 
 static int core_type;
 static int tgt_cps;
@@ -27,6 +29,9 @@ int input_init(struct input_cfg *cfg)
 	core_type = UNKNOWN_CORE;
 	if (strcmp(cfg->core, SDL_LIBRARY_CORE) == 0) {
 		core_type = SDL_CORE;
+	}
+	if (strcmp(cfg->core, SFML_LIBRARY_CORE) == 0) {
+		core_type = SFML_CORE;
 	}
 	tgt_cps = cfg->tgt_cps;
 	return FUNC_SUCCESS;
@@ -60,6 +65,9 @@ int input_handle_input(struct game *game)
 			return FUNC_FAILURE;
 		case SDL_CORE:
 			input_sdl_handle_input(game);
+			break;
+		case SFML_CORE:
+			input_sfml_handle_input(game);
 			break;
 		default:
 			log_write(LOG_TAG_ERR, "unknown input core");

@@ -10,7 +10,7 @@
 #include <string.h>
 
 /**
- * @brief initialze required SDL libraries
+ * @brief initialize required SDL libraries
  * @param cfg pointer to struct game_cfg
  * @return 0 on success 1 on failure
  */

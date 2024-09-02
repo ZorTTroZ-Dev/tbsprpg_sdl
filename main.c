@@ -2,8 +2,6 @@
 #include "utilities/logger.h"
 #include "game/game.h"
 
-#include <stddef.h>
-
 static void config_game(struct game_cfg *cfg)
 {
 	inicfg_getstring("game", "core", &(cfg->core));
@@ -26,9 +24,9 @@ int main(int argc, char *argv[])
 
 	inicfg_open();
 
-	struct game_cfg gcfg;
-	config_game(&gcfg);
-	game_start(&gcfg);
+	struct game_cfg game_cfg;
+	config_game(&game_cfg);
+	game_start(&game_cfg);
 
 	inicfg_close();
 

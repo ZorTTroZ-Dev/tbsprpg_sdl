@@ -54,6 +54,12 @@ add_executable(tbsprpg_sdl
         input/sdl/input_sdl.h
         render/sdl/render_sdl.h
         render/sdl/render_sdl.c
+        game/sfml/game_sfml.h
+        game/sfml/game_sfml.c
+        render/sfml/render_sfml.h
+        render/sfml/render_sfml.c
+        input/sfml/input_sfml.h
+        input/sfml/input_sfml.c
 )
 
 if (TBSPRPG_LINUX_AMD64)
@@ -62,6 +68,7 @@ if (TBSPRPG_LINUX_AMD64)
             ${SDL2_LIBRARIES}
             m
             csfml-graphics
+            X11
     )
 endif ()
 
