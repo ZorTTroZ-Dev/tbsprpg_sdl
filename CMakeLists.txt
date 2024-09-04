@@ -66,7 +66,7 @@ endif ()
 
 if (TBSPRPG_WIN64)
     target_include_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/win64/include)
-    target_link_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/win64/lib)
+    target_link_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/win64/lib/x64)
     target_link_libraries(tbsprpg_sdl
             utilities
             SDL2
@@ -74,7 +74,11 @@ if (TBSPRPG_WIN64)
     )
     add_custom_command(TARGET tbsprpg_sdl POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${PROJECT_SOURCE_DIR}/lib/win64/bin/SDL2.dll"
+            "${PROJECT_SOURCE_DIR}/lib/win64/lib/x64/SDL2.dll"
+            $<TARGET_FILE_DIR:tbsprpg_sdl>)
+    add_custom_command(TARGET tbsprpg_sdl POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${PROJECT_SOURCE_DIR}/lib/win64/lib/x64/SDL2_image.dll"
             $<TARGET_FILE_DIR:tbsprpg_sdl>)
 endif ()
 
