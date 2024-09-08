@@ -61,6 +61,7 @@ if (TBSPRPG_LINUX_AMD64)
             utilities
             ${SDL2_LIBRARIES}
             m
+            SDL2_image
     )
 endif ()
 
@@ -71,6 +72,7 @@ if (TBSPRPG_WIN64)
             utilities
             SDL2
             SDL2main
+            SDL2_image
     )
     add_custom_command(TARGET tbsprpg_sdl POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -85,4 +87,9 @@ endif ()
 add_subdirectory(google_tests)
 
 configure_file(config.ini config.ini COPYONLY)
+
+add_custom_command(TARGET tbsprpg_sdl POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/resources"
+        "$<TARGET_FILE_DIR:tbsprpg_sdl>/resources")
 
