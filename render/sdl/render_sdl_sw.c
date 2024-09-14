@@ -4,6 +4,7 @@
 
 #include "render_sdl_sw.h"
 #include "../../utilities/defines.h"
+#include "../../utilities/logger.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
@@ -18,8 +19,8 @@ int render_sdl_sw_init(struct render_cfg *cfg)
 				  SDL_WINDOWPOS_UNDEFINED, 800, 600,
 				  SDL_WINDOW_SHOWN);
 	if (window == NULL) {
-		printf("Window could not be created! SDL Error: %s\n",
-		       SDL_GetError());
+		log_write(LOG_TAG_ERR, "Window could not be created! SDL Error: ");
+		log_write(LOG_TAG_ERR, SDL_GetError());
 		return FUNC_FAILURE;
 	}
 
