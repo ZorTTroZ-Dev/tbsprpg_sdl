@@ -10,4 +10,6 @@
 
 #define SDL_LIBRARY_CORE "sdl"
 
+#define SDL_LIBRARY_RENDER_CORE_SW "sdl_sw"
+
 #endif //DEFINES_H

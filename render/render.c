@@ -4,6 +4,7 @@
 
 #include "render.h"
 #include "sdl/render_sdl.h"
+#include "sdl/render_sdl_sw.h"
 #include "../utilities/defines.h"
 #include "../utilities/logger.h"
 #include "../game/game.h"
@@ -12,8 +13,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define UNKNOWN_CORE -1
-#define SDL_CORE 0
+#define UNKNOWN_CORE	-1
+#define SDL_CORE	0
+#define SDL_SW_CORE	1
 
 static int core_type;
 static int tgt_fps;
@@ -29,11 +31,16 @@ int render_init(struct render_cfg *cfg)
 	if (strcmp(cfg->core, SDL_LIBRARY_CORE) == 0) {
 		core_type = SDL_CORE;
 	}
+	if (strcmp(cfg->core, SDL_LIBRARY_RENDER_CORE_SW) == 0) {
+		core_type = SDL_SW_CORE;
+	}
 	tgt_fps = cfg->tgt_fps;
 
 	switch (core_type) {
 	case SDL_CORE:
 		return render_sdl_init(cfg);
+	case SDL_SW_CORE:
+		return render_sdl_sw_init(cfg);
 	default:
 		return FUNC_FAILURE;
 	}
@@ -47,6 +54,9 @@ void render_close()
 	switch (core_type) {
 	case SDL_CORE:
 		render_sdl_close();
+		break;
+	case SDL_SW_CORE:
+		render_sdl_sw_close();
 		break;
 	default:
 		break;
@@ -76,6 +86,9 @@ void *render_thread(void *args)
 			break;
 		case SDL_CORE:
 			render_sdl_frame(NULL, 0.0f);
+			break;
+		case SDL_SW_CORE:
+			render_sdl_sw_frame(NULL, 0.0f);
 			break;
 		default:
 			log_write(LOG_TAG_ERR, "unknown render core");

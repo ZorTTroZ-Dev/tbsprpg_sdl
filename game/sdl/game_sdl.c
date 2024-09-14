@@ -19,6 +19,8 @@ int game_sdl_init(const struct game_cfg *cfg)
 	uint32_t subsystems = 0;
 	if (!strcmp(cfg->render_core, SDL_LIBRARY_CORE))
 		subsystems = subsystems | SDL_INIT_VIDEO;
+	if (!strcmp(cfg->render_core, SDL_LIBRARY_RENDER_CORE_SW))
+		subsystems = subsystems | SDL_INIT_VIDEO;
 	if (!strcmp(cfg->audio_core, SDL_LIBRARY_CORE))
 		subsystems = subsystems | SDL_INIT_AUDIO;
 	if (!strcmp(cfg->input_core, SDL_LIBRARY_CORE))
