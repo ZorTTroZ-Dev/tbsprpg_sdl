@@ -3,7 +3,9 @@
 */
 
 #include "render_sdl.h"
+#include "sdl_utils.h"
 #include "../../utilities/defines.h"
+#include "../../utilities/logger.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
@@ -12,21 +14,22 @@ static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static SDL_Texture *texture = NULL;
 
+/**
+ * @brief Initialize hardware SDL renderer, create a new window and get its surface
+ * @param cfg pointer to render_cfg renderer configuration
+ * @return int 0 on success 1 on failure
+ */
 int render_sdl_init(struct render_cfg *cfg)
 {
-	window = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED,
-				  SDL_WINDOWPOS_UNDEFINED, 800, 600,
-				  SDL_WINDOW_SHOWN);
-	if (window == NULL) {
-		printf("Window could not be created! SDL Error: %s\n",
-		       SDL_GetError());
+	window = sdl_create_window(cfg);
+	if (!window)
 		return FUNC_FAILURE;
-	}
 
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (renderer == NULL) {
-		printf("Renderer could not be created! SDL Error: %s\n",
-		       SDL_GetError());
+		log_write(LOG_TAG_ERR,
+			  "Renderer could not be created! SDL Error: ");
+		log_write(LOG_TAG_ERR, SDL_GetError());
 		return FUNC_FAILURE;
 	}
 
@@ -57,6 +60,9 @@ int render_sdl_init(struct render_cfg *cfg)
 	return FUNC_SUCCESS;
 }
 
+/**
+ * @brief Close the hardware SDL renderer
+ */
 void render_sdl_close()
 {
 	SDL_DestroyTexture(texture);
@@ -64,13 +70,16 @@ void render_sdl_close()
 	SDL_DestroyWindow(window);
 }
 
+/**
+ * @brief Render one frame using SDL hardware renderer
+ * @param frame pointer to struct render_frame that is the frame to render
+ * @param interpolation float how much to interpolate since given frame
+ * @return in 0 on success 1 on failure
+ */
 int render_sdl_frame(struct render_frame *frame, float interpolation)
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
-	// SDL_Rect fillRect = { 800 / 4, 600 / 4, 800 / 2, 600 / 2 };
-	// SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-	// SDL_RenderFillRect(renderer, &fillRect);
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
 	return FUNC_SUCCESS;

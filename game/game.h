@@ -25,6 +25,7 @@ struct game_cfg {
 	char *render_core; //!< core graphics library, currently only sdl supported
 	char *audio_core; //!< core audio library, currently only sdl supported
 	char *input_core; //!< core input library, currently only sdl supported
+	char *render_renderer; //!< what renderer to use with the specified core
 };
 
 /**
