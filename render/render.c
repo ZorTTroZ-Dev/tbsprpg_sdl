@@ -13,11 +13,15 @@
 #include <stdio.h>
 #include <string.h>
 
-#define UNKNOWN_CORE	-1
-#define SDL_CORE	0
-#define SDL_SW_CORE	1
+#define UNKNOWN_CORE -1
+#define SDL_CORE 0
+
+#define UNKNOWN_RENDERER -1
+#define SDL_HW_RENDERER 0
+#define SDL_SW_RENDERER 1
 
 static int core_type;
+static int renderer_type;
 static int tgt_fps;
 
 /**
@@ -31,15 +35,19 @@ int render_init(struct render_cfg *cfg)
 	if (strcmp(cfg->core, SDL_LIBRARY_CORE) == 0) {
 		core_type = SDL_CORE;
 	}
-	if (strcmp(cfg->core, SDL_LIBRARY_RENDER_CORE_SW) == 0) {
-		core_type = SDL_SW_CORE;
+	renderer_type = UNKNOWN_RENDERER;
+	if (strcmp(cfg->renderer, SDL_LIBRARY_RENDERER_SW) == 0) {
+		renderer_type = SDL_SW_RENDERER;
+	}
+	if (strcmp(cfg->renderer, SDL_LIBRARY_RENDERER_HW) == 0) {
+		renderer_type = SDL_HW_RENDERER;
 	}
 	tgt_fps = cfg->tgt_fps;
 
-	switch (core_type) {
-	case SDL_CORE:
+	switch (renderer_type) {
+	case SDL_HW_RENDERER:
 		return render_sdl_init(cfg);
-	case SDL_SW_CORE:
+	case SDL_SW_RENDERER:
 		return render_sdl_sw_init(cfg);
 	default:
 		return FUNC_FAILURE;
@@ -51,11 +59,11 @@ int render_init(struct render_cfg *cfg)
  */
 void render_close()
 {
-	switch (core_type) {
-	case SDL_CORE:
+	switch (renderer_type) {
+	case SDL_HW_RENDERER:
 		render_sdl_close();
 		break;
-	case SDL_SW_CORE:
+	case SDL_SW_RENDERER:
 		render_sdl_sw_close();
 		break;
 	default:
@@ -79,15 +87,15 @@ void *render_thread(void *args)
 		const uint64_t start = timing_get_time();
 
 		// render frame
-		switch (core_type) {
-		case UNKNOWN_CORE:
+		switch (renderer_type) {
+		case UNKNOWN_RENDERER:
 			log_write(LOG_TAG_ERR, "render core not properly set");
 			game->shutdown = true;
 			break;
-		case SDL_CORE:
+		case SDL_HW_RENDERER:
 			render_sdl_frame(NULL, 0.0f);
 			break;
-		case SDL_SW_CORE:
+		case SDL_SW_RENDERER:
 			render_sdl_sw_frame(NULL, 0.0f);
 			break;
 		default:

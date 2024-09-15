@@ -56,6 +56,8 @@ add_executable(tbsprpg_sdl
         render/sdl/render_sdl.c
         render/sdl/render_sdl_sw.h
         render/sdl/render_sdl_sw.c
+        render/sdl/sdl_utils.c
+        render/sdl/sdl_utils.h
 )
 
 if (TBSPRPG_LINUX_AMD64)

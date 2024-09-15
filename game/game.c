@@ -65,6 +65,7 @@ static int init_render(const struct game_cfg *cfg)
 	struct render_cfg rcfg;
 	rcfg.tgt_fps = cfg->render_fps;
 	rcfg.core = cfg->render_core;
+	rcfg.renderer = cfg->render_renderer;
 	return render_init(&rcfg);
 }
 
