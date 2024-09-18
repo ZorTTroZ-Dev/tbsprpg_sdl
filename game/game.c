@@ -90,6 +90,7 @@ static int init_audio(const struct game_cfg *cfg)
 {
 	struct audio_cfg acfg;
 	acfg.tgt_cps = cfg->audio_cps;
+	acfg.core = cfg->audio_core;
 	return audio_init(&acfg);
 }
 
