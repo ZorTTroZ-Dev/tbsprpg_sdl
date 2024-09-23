@@ -58,6 +58,8 @@ add_executable(tbsprpg_sdl
         render/sdl/render_sdl_sw.c
         render/sdl/sdl_utils.c
         render/sdl/sdl_utils.h
+        audio/sdl/audio_sdl.h
+        audio/sdl/audio_sdl.c
 )
 
 if (TBSPRPG_LINUX_AMD64)
@@ -66,6 +68,7 @@ if (TBSPRPG_LINUX_AMD64)
             ${SDL2_LIBRARIES}
             m
             SDL2_image
+            SDL2_mixer
     )
 endif ()
 
@@ -77,6 +80,7 @@ if (TBSPRPG_WIN64)
             SDL2
             SDL2main
             SDL2_image
+            SDL2_mixer
     )
     add_custom_command(TARGET tbsprpg_sdl POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -85,6 +89,10 @@ if (TBSPRPG_WIN64)
     add_custom_command(TARGET tbsprpg_sdl POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${PROJECT_SOURCE_DIR}/lib/win64/lib/x64/SDL2_image.dll"
+            $<TARGET_FILE_DIR:tbsprpg_sdl>)
+    add_custom_command(TARGET tbsprpg_sdl POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${PROJECT_SOURCE_DIR}/lib/win64/lib/x64/SDL2_mixer.dll"
             $<TARGET_FILE_DIR:tbsprpg_sdl>)
 endif ()
 

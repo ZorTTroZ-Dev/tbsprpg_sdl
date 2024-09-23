@@ -12,6 +12,7 @@
  */
 struct audio_cfg {
 	uint8_t tgt_cps; //!< target cycles per second of audio thread
+	char *core; //!< audio core to use
 };
 
 /**
