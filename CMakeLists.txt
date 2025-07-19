@@ -5,10 +5,10 @@ set(CMAKE_C_STANDARD 17)
 
 option(TBSPRPG_LINUX_AMD64 "Building for Linux AMD64" OFF)
 option(TBSPRPG_WIN64 "Building for Windows 64" OFF)
+option(TBSPRPG_LINUX_SYSTEM "Building for Linux using system libraries" OFF)
 
 if (TBSPRPG_LINUX_AMD64)
-    find_package(SDL2 REQUIRED)
-    include_directories(${SDL2_INCLUDE_DIRS})
+    include_directories(${CMAKE_SOURCE_DIR}/lib/arm64/include)
 endif ()
 
 if (TBSPRPG_WIN64)
@@ -62,11 +62,23 @@ add_executable(tbsprpg_sdl
         audio/sdl/audio_sdl.c
 )
 
-if (TBSPRPG_LINUX_AMD64)
+if (TBSPRPG_LINUX_SYSTEM)
     target_link_libraries(tbsprpg_sdl
-            utilities
-            ${SDL2_LIBRARIES}
             m
+            utilities
+            SDL2
+            SDL2_image
+            SDL2_mixer
+    )
+endif ()
+
+if (TBSPRPG_LINUX_AMD64)
+    target_include_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/arm64/include)
+    target_link_directories(tbsprpg_sdl PRIVATE ${CMAKE_SOURCE_DIR}/lib/arm64/lib)
+    target_link_libraries(tbsprpg_sdl
+            m
+            utilities
+            SDL2
             SDL2_image
             SDL2_mixer
     )
@@ -95,8 +107,6 @@ if (TBSPRPG_WIN64)
             "${PROJECT_SOURCE_DIR}/lib/win64/lib/x64/SDL2_mixer.dll"
             $<TARGET_FILE_DIR:tbsprpg_sdl>)
 endif ()
-
-add_subdirectory(google_tests)
 
 configure_file(config.ini config.ini COPYONLY)
 

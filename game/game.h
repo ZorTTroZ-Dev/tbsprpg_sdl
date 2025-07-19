@@ -17,10 +17,9 @@
  * @brief Configuration settings for a game
  */
 struct game_cfg {
-	uint8_t render_fps; //!< target frames per second to render
+	uint8_t game_fps; //!< target frames per second to render and poll input
 	uint8_t sim_cps; //!< cycles per second simulation thread should run at
 	uint8_t audio_cps; //!< cycles per second audio thread should run at
-	uint8_t input_cps; //!< cycles per second input should be polled at
 	char *core; //!< core game library, currently only sdl supported
 	char *render_core; //!< core graphics library, currently only sdl supported
 	char *audio_core; //!< core audio library, currently only sdl supported

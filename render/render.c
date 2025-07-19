@@ -22,7 +22,6 @@
 
 static int core_type;
 static int renderer_type;
-static int tgt_fps;
 
 /**
  * @brief initialize render subsystem
@@ -42,7 +41,6 @@ int render_init(struct render_cfg *cfg)
 	if (strcmp(cfg->renderer, SDL_LIBRARY_RENDERER_HW) == 0) {
 		renderer_type = SDL_HW_RENDERER;
 	}
-	tgt_fps = cfg->tgt_fps;
 
 	switch (renderer_type) {
 	case SDL_HW_RENDERER:
@@ -72,53 +70,29 @@ void render_close()
 }
 
 /**
- * @brief main method of render subsystem thread
- * @param args void pointer arguments to thread
- * @return void pointer result of thread
+ * @brief render frames attached to the game object
+ * @param frames list of frames to render
+ * @return int 0 on success 1 on failure
  */
-void *render_thread(void *args)
+int render_render_frames(struct render_frame *frames)
 {
-	struct game *game = (struct game *)args;
-	uint32_t fps_time = timing_get_time();
-	uint32_t cycle = 0;
-	float fps = 0;
-	const float mspercycle = (float)1000 / tgt_fps;
-	while (!game->shutdown) {
-		const uint64_t start = timing_get_time();
-
-		// render frame
-		switch (renderer_type) {
-		case UNKNOWN_RENDERER:
-			log_write(LOG_TAG_ERR, "render core not properly set");
-			game->shutdown = true;
-			break;
-		case SDL_HW_RENDERER:
-			render_sdl_frame(NULL, 0.0f);
-			break;
-		case SDL_SW_RENDERER:
-			render_sdl_sw_frame(NULL, 0.0f);
-			break;
-		default:
-			log_write(LOG_TAG_ERR, "unknown render core");
-			game->shutdown = true;
-			break;
-		}
-
-		const uint64_t end = timing_get_time();
-		const int64_t sleep = mspercycle - (end - start);
-		if (sleep > 0) {
-			timing_msleep(sleep);
-		}
-
-		// calculate frames per second
-		cycle++;
-		if (cycle == 100) {
-			const uint32_t fps_end_time = timing_get_time();
-			fps = cycle / ((fps_end_time - fps_time) / (float)1000);
-			fps_time = fps_end_time;
-			cycle = 0;
-		}
+	// render frame
+	switch (renderer_type) {
+	case UNKNOWN_RENDERER:
+		log_write(LOG_TAG_ERR, "render core not properly set");
+		return FUNC_FAILURE;
+		break;
+	case SDL_HW_RENDERER:
+		render_sdl_frame(NULL, 0.0f);
+		break;
+	case SDL_SW_RENDERER:
+		render_sdl_sw_frame(NULL, 0.0f);
+		break;
+	default:
+		log_write(LOG_TAG_ERR, "unknown render core");
+		return FUNC_FAILURE;
+		break;
 	}
-	printf("RENDER FPS: %f\n", fps);
-	return NULL;
+
+	return FUNC_SUCCESS;
 }

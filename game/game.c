@@ -7,6 +7,7 @@
 #include "../utilities/threading.h"
 #include "../input/input.h"
 #include "../utilities/logger.h"
+#include "../utilities/timing.h"
 #include "sdl/game_sdl.h"
 
 #include <stdio.h>
@@ -16,8 +17,7 @@
 #define NUM_THREADS 3
 
 #define SIMULATION_THREAD 0
-#define RENDER_THREAD 1
-#define AUDIO_THREAD 2
+#define AUDIO_THREAD 1
 
 static pthread_t threads[NUM_THREADS]; //!< array of threads in game
 
@@ -37,13 +37,7 @@ static int launch_threads()
 		return FUNC_FAILURE;
 	}
 
-	log_write(LOG_TAG_INFO, "launching render thread");
-	rval = pthread_create(&threads[RENDER_THREAD], NULL, render_thread,
-			      game);
-	if (rval != FUNC_SUCCESS) {
-		log_write(LOG_TAG_ERR, "failed to create render thread");
-		return FUNC_FAILURE;
-	}
+	// TODO add thread for resource management
 
 	log_write(LOG_TAG_INFO, "launching audio thread");
 	rval = pthread_create(&threads[AUDIO_THREAD], NULL, audio_thread, game);
@@ -63,7 +57,6 @@ static int launch_threads()
 static int init_render(const struct game_cfg *cfg)
 {
 	struct render_cfg rcfg;
-	rcfg.tgt_fps = cfg->render_fps;
 	rcfg.core = cfg->render_core;
 	rcfg.renderer = cfg->render_renderer;
 	return render_init(&rcfg);
@@ -102,7 +95,6 @@ static int init_audio(const struct game_cfg *cfg)
 static int init_input(const struct game_cfg *cfg)
 {
 	struct input_cfg icfg;
-	icfg.tgt_cps = cfg->input_cps;
 	icfg.core = cfg->input_core;
 	return input_init(&icfg);
 }
@@ -226,6 +218,48 @@ func_failure:
 }
 
 /**
+ * @brief main game loop handle input and rendering
+ * @param tgt_fps uint8_t target frames per second in loop
+ */
+static void loop(uint8_t tgt_fps)
+{
+	int result = 0;
+	uint32_t fps_time = timing_get_time();
+	uint32_t cycle = 0;
+	float fps = 0;
+	const float mspercycle = (float)1000 / tgt_fps;
+	while (!game->shutdown) {
+		const uint64_t start = timing_get_time();
+
+		// DO STUFF
+		result = input_handle_input(game); // handle events
+		if (result == FUNC_FAILURE) {
+			game->shutdown = true;
+		}
+		result = render_render_frames(game->frames); // render frames
+		if (result == FUNC_FAILURE) {
+			game->shutdown = true;
+		}
+
+		const uint64_t end = timing_get_time();
+		const int64_t sleep = mspercycle - (end - start);
+		if (sleep > 0) {
+			timing_msleep(sleep);
+		}
+
+		// calculate frames per second
+		cycle++;
+		if (cycle == 100) {
+			const uint32_t fps_end_time = timing_get_time();
+			fps = cycle / ((fps_end_time - fps_time) / (float)1000);
+			fps_time = fps_end_time;
+			cycle = 0;
+		}
+	}
+	printf("RENDER/INPUT FPS: %f\n", fps);
+}
+
+/**
  * @brief start the game, initialize all of the subsystems, launch threads and handle input
  * @param cfg pointer to struct game_cfg
  * @return 0 on success 1 on failure
@@ -255,8 +289,7 @@ int game_start(const struct game_cfg *cfg)
 		return FUNC_FAILURE;
 	}
 
-	// start handling events
-	input_handle_input(game);
+	loop(cfg->game_fps);
 
 	join_threads();
 	log_write(LOG_TAG_INFO, "threads closed");

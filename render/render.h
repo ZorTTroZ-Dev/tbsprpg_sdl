@@ -38,6 +38,6 @@ struct render_frame {
 
 extern int render_init(struct render_cfg *cfg);
 extern void render_close();
-extern void *render_thread(void *args);
+extern int render_render_frames(struct render_frame *frames);
 
 #endif //RENDER_H
