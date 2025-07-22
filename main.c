@@ -12,6 +12,7 @@ static void config_game(struct game_cfg *cfg)
 	inicfg_getstring("audio", "core", &(cfg->audio_core));
 	inicfg_getuint8_t("audio", "cps", &(cfg->audio_cps));
 	inicfg_getuint8_t("simulation", "cps", &(cfg->sim_cps));
+	inicfg_getstring("simulation", "world_file_path", &(cfg->world_file_path));
 }
 
 int main(int argc, char *argv[])

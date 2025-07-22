@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+static char *world_file_path = NULL;
+
 /**
  * @brief initialize simulation subsystem
  * @param cfg pointer to sruct sim_cfg
@@ -15,6 +17,8 @@
  */
 int sim_init(struct sim_cfg *cfg)
 {
+	world_file_path = cfg->world_file_path;
+	// open the world
 	return FUNC_SUCCESS;
 }
 

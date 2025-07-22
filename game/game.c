@@ -30,9 +30,9 @@ struct game *game; //!< game state
 static int launch_threads()
 {
 	log_write(LOG_TAG_INFO, "launching simulation thread");
-	int rval = pthread_create(&threads[SIMULATION_THREAD], NULL, sim_thread,
+	int result = pthread_create(&threads[SIMULATION_THREAD], NULL, sim_thread,
 				  game);
-	if (rval != FUNC_SUCCESS) {
+	if (result != FUNC_SUCCESS) {
 		log_write(LOG_TAG_ERR, "failed to create simulation thread");
 		return FUNC_FAILURE;
 	}
@@ -40,8 +40,8 @@ static int launch_threads()
 	// TODO add thread for resource management
 
 	log_write(LOG_TAG_INFO, "launching audio thread");
-	rval = pthread_create(&threads[AUDIO_THREAD], NULL, audio_thread, game);
-	if (rval != FUNC_SUCCESS) {
+	result = pthread_create(&threads[AUDIO_THREAD], NULL, audio_thread, game);
+	if (result != FUNC_SUCCESS) {
 		log_write(LOG_TAG_ERR, "failed to create audio thread");
 		return FUNC_FAILURE;
 	}
@@ -56,10 +56,10 @@ static int launch_threads()
  */
 static int init_render(const struct game_cfg *cfg)
 {
-	struct render_cfg rcfg;
-	rcfg.core = cfg->render_core;
-	rcfg.renderer = cfg->render_renderer;
-	return render_init(&rcfg);
+	struct render_cfg r_cfg;
+	r_cfg.core = cfg->render_core;
+	r_cfg.renderer = cfg->render_renderer;
+	return render_init(&r_cfg);
 }
 
 /**
@@ -71,6 +71,7 @@ static int init_simulation(const struct game_cfg *cfg)
 {
 	struct sim_cfg scfg;
 	scfg.tgt_cps = cfg->sim_cps;
+	scfg.world_file_path = cfg->world_file_path;
 	return sim_init(&scfg);
 }
 
@@ -81,10 +82,10 @@ static int init_simulation(const struct game_cfg *cfg)
  */
 static int init_audio(const struct game_cfg *cfg)
 {
-	struct audio_cfg acfg;
-	acfg.tgt_cps = cfg->audio_cps;
-	acfg.core = cfg->audio_core;
-	return audio_init(&acfg);
+	struct audio_cfg a_cfg;
+	a_cfg.tgt_cps = cfg->audio_cps;
+	a_cfg.core = cfg->audio_core;
+	return audio_init(&a_cfg);
 }
 
 /**
@@ -184,7 +185,7 @@ static void close_subsystems()
 }
 
 /**
- * @brief initialize all of the subsystems
+ * @brief initialize all the subsystems
  * @param cfg pointer to struct game_cfg
  * @return 0 on success 1 on failure
  */
@@ -227,7 +228,8 @@ static void loop(uint8_t tgt_fps)
 	uint32_t fps_time = timing_get_time();
 	uint32_t cycle = 0;
 	float fps = 0;
-	const float mspercycle = (float)1000 / tgt_fps;
+	const uint64_t micro_sec_per_cycle = 1000000 / tgt_fps;
+	const float ms_per_cycle = (float)1000 / (float)tgt_fps;
 	while (!game->shutdown) {
 		const uint64_t start = timing_get_time();
 
@@ -242,7 +244,7 @@ static void loop(uint8_t tgt_fps)
 		}
 
 		const uint64_t end = timing_get_time();
-		const int64_t sleep = mspercycle - (end - start);
+		const int64_t sleep = ms_per_cycle - (end - start);
 		if (sleep > 0) {
 			timing_msleep(sleep);
 		}
@@ -260,7 +262,7 @@ static void loop(uint8_t tgt_fps)
 }
 
 /**
- * @brief start the game, initialize all of the subsystems, launch threads and handle input
+ * @brief start the game, initialize all the subsystems, launch threads and handle input
  * @param cfg pointer to struct game_cfg
  * @return 0 on success 1 on failure
  */

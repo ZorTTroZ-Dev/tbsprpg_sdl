@@ -7,7 +7,10 @@
 #include "../utilities/defines.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
+
+static char *world_file_name = NULL;
 
 int world_open()
 {
@@ -18,6 +21,8 @@ int world_open()
 
 	// read tile info from world file, populate tile information
 
+	// are we going to stream the world or put the whole world in memory, depends on size
+
 	// how am I going to save or retrieve texture id
 	// stored as tuple (sheet id, sheet x, sheet y)
 	// get handle from texture manager
@@ -26,4 +31,9 @@ int world_open()
 
 void world_close()
 {
+}
+
+int world_write()
+{
+	return FUNC_SUCCESS;
 }

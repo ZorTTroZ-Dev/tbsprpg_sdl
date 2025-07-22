@@ -25,6 +25,7 @@ struct game_cfg {
 	char *audio_core; //!< core audio library, currently only sdl supported
 	char *input_core; //!< core input library, currently only sdl supported
 	char *render_renderer; //!< what renderer to use with the specified core
+	char *world_file_path; //!< file to load world from
 };
 
 /**
@@ -32,7 +33,7 @@ struct game_cfg {
  * @brief top-level game objects
  */
 struct game {
-	bool shutdown; //!< should threads shutdown
+	bool shutdown; //!< should the threads shutdown
 	struct render_frame *frames; //!< queue of frames to render
 	struct audio_track *tracks; //!< audio tracks queued for playback
 	struct sim_world *world; //!< state of game world
