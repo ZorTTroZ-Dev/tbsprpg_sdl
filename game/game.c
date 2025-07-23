@@ -225,11 +225,10 @@ func_failure:
 static void loop(uint8_t tgt_fps)
 {
 	int result = 0;
-	uint32_t fps_time = timing_get_time();
+	uint64_t fps_time = timing_get_time();
 	uint32_t cycle = 0;
 	float fps = 0;
 	const uint64_t micro_sec_per_cycle = 1000000 / tgt_fps;
-	const float ms_per_cycle = (float)1000 / (float)tgt_fps;
 	while (!game->shutdown) {
 		const uint64_t start = timing_get_time();
 
@@ -244,16 +243,17 @@ static void loop(uint8_t tgt_fps)
 		}
 
 		const uint64_t end = timing_get_time();
-		const int64_t sleep = ms_per_cycle - (end - start);
+		const int64_t sleep = (int64_t)(micro_sec_per_cycle - (end - start));
 		if (sleep > 0) {
-			timing_msleep(sleep);
+			timing_micro_sleep(sleep);
 		}
 
 		// calculate frames per second
 		cycle++;
 		if (cycle == 100) {
-			const uint32_t fps_end_time = timing_get_time();
-			fps = cycle / ((fps_end_time - fps_time) / (float)1000);
+			const uint64_t fps_end_time = timing_get_time();
+			float seconds = (float)(fps_end_time - fps_time) / (float)1000000;
+			fps = (float)cycle / seconds;
 			fps_time = fps_end_time;
 			cycle = 0;
 		}
