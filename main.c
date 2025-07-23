@@ -2,8 +2,6 @@
 #include "utilities/logger.h"
 #include "game/game.h"
 
-#include <stddef.h>
-
 static void config_game(struct game_cfg *cfg)
 {
 	inicfg_getstring("game", "core", &(cfg->core));
@@ -14,6 +12,7 @@ static void config_game(struct game_cfg *cfg)
 	inicfg_getstring("audio", "core", &(cfg->audio_core));
 	inicfg_getuint8_t("audio", "cps", &(cfg->audio_cps));
 	inicfg_getuint8_t("simulation", "cps", &(cfg->sim_cps));
+	inicfg_getstring("simulation", "world_file_path", &(cfg->world_file_path));
 }
 
 int main(int argc, char *argv[])
@@ -26,9 +25,9 @@ int main(int argc, char *argv[])
 
 	inicfg_open();
 
-	struct game_cfg gcfg;
-	config_game(&gcfg);
-	game_start(&gcfg);
+	struct game_cfg game_cfg;
+	config_game(&game_cfg);
+	game_start(&game_cfg);
 
 	inicfg_close();
 

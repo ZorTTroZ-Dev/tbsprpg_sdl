@@ -60,6 +60,8 @@ add_executable(tbsprpg_sdl
         render/sdl/sdl_utils.h
         audio/sdl/audio_sdl.h
         audio/sdl/audio_sdl.c
+        simulation/world.h
+        simulation/world.c
 )
 
 if (TBSPRPG_LINUX_SYSTEM)

@@ -13,6 +13,7 @@
  */
 struct sim_cfg {
 	uint8_t tgt_cps; //!< target cycles per second of simulation thread
+	char *world_file_path; //!< path for world file
 };
 
 /**

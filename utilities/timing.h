@@ -8,5 +8,6 @@
 
 extern uint64_t timing_get_time();
 extern int timing_msleep(uint32_t ms);
+extern int timing_micro_sleep(uint64_t ms);
 
 #endif //TIMING_H

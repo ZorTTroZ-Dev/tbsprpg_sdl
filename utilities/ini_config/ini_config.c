@@ -336,7 +336,7 @@ struct inicfg_setting *find_setting(const char *section, const char *key)
  * @brief Retrieve the value for the given key in the given section
  *	will point the value parameter to the key value, do not free
  *	the given value pointer.
- * @note This implementation is naive you may not want to retreive an ini setting
+ * @note This implementation is naive you may not want to retrieve an ini setting
  *	during gameplay.
  * @param section name of section to find key in
  * @param key name of key to get value for
@@ -356,7 +356,7 @@ void inicfg_getstring(const char *section, const char *key, char **value)
  *	will point the value parameter to the key value, do not free
  *	the given value pointer. Uses atoi so if the setting isn't an integer
  *	or its bigger than an int the value will point to 0.
- * @note This implementation is naive you may not want to retreive an ini setting
+ * @note This implementation is naive you may not want to retrieve an ini setting
  *	during gameplay.
  * @param section name of section to find key in
  * @param key name of key to get value for
