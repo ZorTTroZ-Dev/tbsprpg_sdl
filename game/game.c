@@ -72,6 +72,7 @@ static int init_simulation(const struct game_cfg *cfg)
 	struct sim_cfg scfg;
 	scfg.tgt_cps = cfg->sim_cps;
 	scfg.world_file_path = cfg->world_file_path;
+	scfg.world_bootstrap = cfg->world_bootstrap;
 	return sim_init(&scfg);
 }
 

@@ -29,8 +29,7 @@ struct world {
 	struct world_tile *tile_map; //!< world tile map
 };
 
-extern int world_write();
-extern int world_open();
+extern int world_open(char *world_file_path, uint8_t bootstrap);
 extern void world_close();
 
 #endif //WORLD_H

@@ -26,6 +26,7 @@ struct game_cfg {
 	char *input_core; //!< core input library, currently only sdl supported
 	char *render_renderer; //!< what renderer to use with the specified core
 	char *world_file_path; //!< file to load world from
+	uint8_t world_bootstrap; //!< should we bootstrap the world
 };
 
 /**

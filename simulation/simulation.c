@@ -4,11 +4,11 @@
 
 #include "../utilities/defines.h"
 #include "simulation.h"
+
+#include "world.h"
 #include "../utilities/logger.h"
 
 #include <stdio.h>
-
-static char *world_file_path = NULL;
 
 /**
  * @brief initialize simulation subsystem
@@ -17,8 +17,7 @@ static char *world_file_path = NULL;
  */
 int sim_init(struct sim_cfg *cfg)
 {
-	world_file_path = cfg->world_file_path;
-	// open the world
+	world_open(cfg->world_file_path, cfg->world_bootstrap);
 	return FUNC_SUCCESS;
 }
 

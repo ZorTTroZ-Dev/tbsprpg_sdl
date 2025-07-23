@@ -10,9 +10,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-static char *world_file_name = NULL;
-
-int world_open()
+int world_open(char *world_file_path, uint8_t bootstrap)
 {
 	// allocate enough world tiles to fill out the world width * length * height
 	// from the memory pool

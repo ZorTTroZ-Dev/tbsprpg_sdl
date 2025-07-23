@@ -14,6 +14,7 @@
 struct sim_cfg {
 	uint8_t tgt_cps; //!< target cycles per second of simulation thread
 	char *world_file_path; //!< path for world file
+	uint8_t world_bootstrap; //!< should we bootstrap the world
 };
 
 /**
